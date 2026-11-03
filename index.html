@@ -1,0 +1,2266 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+:root {
+  --teal: #14b8a6; --teal-dark: #0f766e; --teal-light: #f0fdfa;
+  --indigo: #6366f1; --indigo-light: #eef2ff;
+  --green: #34d399; --green-dark: #059669; --green-light: #ecfdf5;
+  --amber: #fbbf24; --amber-light: #fffbeb;
+  --red: #f87171; --red-light: #fff1f2;
+  --blue: #60a5fa; --blue-light: #eff6ff;
+  --purple: #a78bfa; --purple-light: #f5f3ff;
+  --bg: #f0fdfa; --card: #ffffff; --text: #1e293b; --muted: #94a3b8;
+  --radius: 20px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Jua','Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+#loginScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:linear-gradient(135deg,#f0fdfa,#e0f2fe,#f5f3ff); }
+.login-card { background:white; border-radius:28px; padding:44px 38px; box-shadow:0 12px 48px rgba(20,184,166,0.2); max-width:440px; width:100%; text-align:center; border:2px solid #99f6e4; }
+.login-emoji { font-size:3.8rem; display:block; margin-bottom:10px; animation:floatEmoji 2.4s ease-in-out infinite; }
+@keyframes floatEmoji { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.login-title { font-size:1.7rem; color:var(--teal-dark); margin-bottom:4px; }
+.login-sub { font-size:.92rem; color:var(--muted); margin-bottom:28px; }
+.login-form { display:flex; flex-direction:column; gap:14px; text-align:left; }
+.login-row { display:flex; gap:10px; }
+.login-label { font-size:.9rem; color:var(--teal-dark); margin-bottom:3px; display:block; }
+.login-input { font-family:'Jua',sans-serif; width:100%; padding:12px 16px; font-size:1rem; border:2px solid #99f6e4; border-radius:14px; outline:none; color:var(--text); background:var(--teal-light); transition:border-color .2s; }
+.login-input:focus { border-color:var(--teal); background:white; }
+.login-input.err { border-color:var(--red); background:var(--red-light); }
+.login-err { font-size:.85rem; color:var(--red); display:none; }
+.login-btn { font-family:'Jua',sans-serif; width:100%; padding:14px; font-size:1.1rem; border:none; border-radius:18px; background:linear-gradient(135deg,#14b8a6,#0f766e); color:white; cursor:pointer; box-shadow:0 4px 14px rgba(20,184,166,0.4); transition:transform .2s; }
+.login-btn:hover { transform:scale(1.02); }
+.login-notice { margin-top:18px; padding:12px 16px; background:var(--teal-light); border-radius:12px; font-size:.85rem; color:var(--muted); line-height:1.6; border:1px dashed #99f6e4; }
+.site-header { background:linear-gradient(135deg,#0f766e,#14b8a6,#6366f1); color:white; padding:36px 20px 28px; text-align:center; position:relative; overflow:hidden; }
+.site-header h1 { font-size:2em; position:relative; }
+.site-header p { opacity:.9; margin-top:8px; font-size:1em; }
+.header-decos { display:flex; justify-content:center; gap:10px; margin-top:14px; flex-wrap:wrap; }
+.header-deco { background:rgba(255,255,255,0.25); border:1px solid rgba(255,255,255,0.5); border-radius:20px; padding:5px 14px; font-size:.82em; }
+#studentBadge { display:none; margin-top:10px; background:rgba(255,255,255,0.25); border:1px solid rgba(255,255,255,0.5); border-radius:20px; padding:5px 18px; font-size:.88em; }
+.prog-wrap { background:white; padding:12px 24px; box-shadow:0 2px 12px rgba(20,184,166,0.15); position:sticky; top:0; z-index:200; display:flex; align-items:center; gap:12px; border-bottom:2px solid #99f6e4; }
+.prog-track { flex:1; height:12px; background:#99f6e4; border-radius:10px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(90deg,#14b8a6,#6366f1); border-radius:10px; transition:width .6s; width:0%; }
+#progPct { font-weight:800; color:var(--teal-dark); min-width:36px; }
+.chapter-nav { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; padding:14px 16px; background:white; border-bottom:2px solid #99f6e4; position:sticky; top:50px; z-index:190; }
+.ch-btn { padding:8px 16px; border:2px solid #99f6e4; border-radius:30px; background:white; color:var(--muted); cursor:pointer; font-family:'Jua',sans-serif; font-size:.83em; transition:all .25s; }
+.ch-btn:hover:not(.locked) { border-color:var(--teal); color:var(--teal); }
+.ch-btn.active { background:linear-gradient(135deg,#14b8a6,#6366f1); border-color:transparent; color:white; box-shadow:0 4px 14px rgba(20,184,166,0.4); }
+.ch-btn.locked { opacity:.4; cursor:not-allowed; pointer-events:none; }
+.section { display:none; animation:fadeUp .35s ease; }
+.section.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.container { max-width:900px; margin:24px auto; padding:0 16px; }
+.card { background:var(--card); border-radius:var(--radius); padding:24px; margin-bottom:18px; box-shadow:0 4px 20px rgba(20,184,166,0.08); border:1.5px solid #99f6e4; }
+.card-title { font-size:1.15em; color:var(--teal-dark); margin-bottom:16px; padding-bottom:12px; border-bottom:2px dashed #99f6e4; display:flex; align-items:center; gap:8px; }
+.hl { border-radius:12px; padding:14px 16px; margin:10px 0; line-height:2; }
+.hl-teal   { background:#f0fdfa; border-left:4px solid #14b8a6; }
+.hl-green  { background:#ecfdf5; border-left:4px solid #34d399; }
+.hl-red    { background:#fff1f2; border-left:4px solid #f87171; }
+.hl-amber  { background:#fffbeb; border-left:4px solid #fbbf24; }
+.hl-purple { background:#f5f3ff; border-left:4px solid #a78bfa; }
+.hl-blue   { background:#eff6ff; border-left:4px solid #60a5fa; }
+.hl-indigo { background:#eef2ff; border-left:4px solid #6366f1; }
+.apa-reference-card {
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+  border-radius:18px; padding:20px; margin:14px 0;
+  border:2px solid #334155; position:relative; overflow:hidden;
+}
+.apa-reference-card::before {
+  content:'📌 APA 참고 카드';
+  position:absolute; top:12px; right:14px;
+  background:rgba(20,184,166,0.3); color:#5eead4;
+  border-radius:10px; padding:3px 10px; font-size:.78em;
+}
+.apa-ref-title { color:#5eead4; font-size:1em; margin-bottom:14px; }
+.apa-format-box { background:rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1); }
+.apa-format-title { color:#a78bfa; font-size:.82em; margin-bottom:8px; }
+.apa-format-text { color:#e2e8f0; font-size:.88em; line-height:1.9; font-family:'Courier New',monospace; }
+.apa-format-text strong { color:#fbbf24; }
+.apa-example { background:rgba(52,211,153,0.1); border-radius:10px; padding:12px; margin-top:8px; border:1px solid rgba(52,211,153,0.3); }
+.apa-example-title { color:#34d399; font-size:.78em; margin-bottom:6px; }
+.apa-example-text { color:#d1fae5; font-size:.83em; line-height:1.8; font-family:'Courier New',monospace; }
+.apa-warning { background:rgba(248,113,113,0.1); border-radius:10px; padding:10px 12px; margin-top:10px; border:1px solid rgba(248,113,113,0.3); color:#fca5a5; font-size:.82em; line-height:1.7; }
+.apa-tip { background:rgba(251,191,36,0.1); border-radius:10px; padding:10px 12px; margin-top:8px; border:1px solid rgba(251,191,36,0.3); color:#fde68a; font-size:.82em; line-height:1.7; }
+.original-text-card { border-radius:16px; overflow:hidden; margin:14px 0; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+.otc-header { padding:16px 20px; color:white; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; }
+.otc-header h3 { font-size:1em; }
+.otc-meta { font-size:.82em; opacity:.9; margin-top:4px; }
+.otc-body { padding:20px; background:white; border:2px solid; border-top:none; font-size:.92em; line-height:2; }
+.otc-highlight { background:#fef9c3; border-radius:4px; padding:1px 4px; }
+.otc-check-list { margin-top:14px; }
+.otc-check-item { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:.88em; }
+.otc-check-item:last-child { border-bottom:none; }
+.write-area { background:white; border:2px solid #99f6e4; border-radius:14px; padding:16px; margin:10px 0; }
+.write-label { font-size:.88em; color:var(--teal-dark); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.write-input { width:100%; padding:12px 14px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Jua',sans-serif; font-size:.92em; outline:none; resize:vertical; background:#f8fafc; color:var(--text); transition:border-color .2s; min-height:60px; }
+.write-input:focus { border-color:var(--teal); background:white; }
+.write-input.done { border-color:#34d399; background:#f0fdf4; }
+.apa-input-wrap { background:#1e293b; border-radius:12px; padding:16px; margin:10px 0; }
+.apa-input-label { color:#94a3b8; font-size:.8em; margin-bottom:6px; }
+.apa-field-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.apa-field { flex:1; min-width:130px; }
+.apa-field label { display:block; color:#5eead4; font-size:.75em; margin-bottom:4px; }
+.apa-field input, .apa-field textarea {
+  width:100%; padding:8px 10px; border:1.5px solid #334155;
+  border-radius:8px; font-family:'Jua',sans-serif; font-size:.88em;
+  background:#0f172a; color:#e2e8f0; outline:none; transition:border-color .2s;
+}
+.apa-field input:focus, .apa-field textarea:focus { border-color:#14b8a6; }
+.apa-field input.ok  { border-color:#34d399; background:#052e16; }
+.apa-field input.err { border-color:#f87171; background:#450a0a; }
+.apa-preview-box { background:#0f172a; border-radius:10px; padding:12px 14px; margin-top:10px; border:1px solid #334155; }
+.apa-preview-label { color:#6366f1; font-size:.75em; margin-bottom:6px; }
+.apa-preview-text { color:#c7d2fe; font-size:.85em; font-family:'Courier New',monospace; line-height:1.8; min-height:40px; }
+.fb-box { display:none; border-radius:14px; padding:16px; margin:10px 0; border:2px solid; animation:fadeUp .3s ease; }
+.fb-box.show { display:block; }
+.fb-box.good { background:#ecfdf5; border-color:#34d399; color:#065f46; }
+.fb-box.warn { background:#fffbeb; border-color:#fbbf24; color:#92400e; }
+.fb-box.info { background:#eff6ff; border-color:#60a5fa; color:#1d4ed8; }
+.fb-box.bad  { background:#fff1f2; border-color:#f87171; color:#991b1b; }
+/* 자기점검 체크 아이템 (기존 peer-check 스타일 재활용) */
+.self-check-grid { display:grid; grid-template-columns:1fr; gap:8px; margin:12px 0; }
+.self-check-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border:2px solid #99f6e4; border-radius:12px; background:white; transition:all .25s; }
+.self-check-item.checked-ok  { border-color:#34d399; background:#ecfdf5; }
+.self-check-item.checked-bad { border-color:#f87171; background:#fff1f2; }
+.self-check-icon { font-size:1.3em; flex-shrink:0; }
+.self-check-text { font-size:.88em; flex:1; line-height:1.6; }
+.self-check-btns { display:flex; gap:6px; flex-shrink:0; }
+.self-btn { padding:5px 12px; border:none; border-radius:8px; font-family:'Jua',sans-serif; font-size:.8em; cursor:pointer; transition:all .2s; }
+.self-btn.yes { background:#ecfdf5; color:#059669; border:1.5px solid #34d399; }
+.self-btn.no  { background:#fff1f2; color:#dc2626; border:1.5px solid #f87171; }
+.self-btn.yes.selected { background:#34d399; color:white; }
+.self-btn.no.selected  { background:#f87171; color:white; }
+.self-section-label { font-size:.85em; color:var(--teal-dark); font-weight:bold;
+  padding:8px 0 6px; border-bottom:2px solid #99f6e4; margin:10px 0 6px; }
+/* 내가 쓴 내용 미리보기 박스 */
+.review-box { background:white; border:1.5px solid #99f6e4; border-radius:12px; padding:14px; font-size:.88em; line-height:1.9; color:#475569; min-height:56px; white-space:pre-wrap; word-break:break-all; }
+.review-apa-box { background:#1e293b; border-radius:12px; padding:12px 14px; font-size:.85em; color:#5eead4; font-family:'Courier New',monospace; line-height:1.8; min-height:36px; word-break:break-all; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:10px 22px; border:none; border-radius:30px; cursor:pointer; font-family:'Jua',sans-serif; font-size:.92em; transition:all .25s; margin:4px; }
+.btn-teal   { background:linear-gradient(135deg,#14b8a6,#0f766e); color:white; box-shadow:0 4px 14px rgba(20,184,166,0.4); }
+.btn-teal:hover { transform:translateY(-2px); }
+.btn-indigo { background:linear-gradient(135deg,#6366f1,#4f46e5); color:white; box-shadow:0 4px 14px rgba(99,102,241,0.4); }
+.btn-indigo:hover { transform:translateY(-2px); }
+.btn-green  { background:linear-gradient(135deg,#34d399,#059669); color:white; box-shadow:0 4px 14px rgba(52,211,153,0.3); }
+.btn-green:hover { transform:translateY(-2px); }
+.btn-ghost  { background:var(--teal-light); color:var(--teal-dark); border:1.5px solid #99f6e4; }
+.btn-ghost:hover { background:#99f6e4; }
+.complete-btn-wrap { text-align:center; margin:20px 0 8px; }
+.complete-btn { background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; border:none; border-radius:30px; padding:14px 36px; font-family:'Jua',sans-serif; font-size:1.05em; cursor:pointer; box-shadow:0 6px 20px rgba(20,184,166,0.4); transition:all .3s; display:inline-flex; align-items:center; gap:8px; }
+.complete-btn:hover:not(.btn-locked) { transform:translateY(-3px); }
+.complete-btn.btn-locked { background:linear-gradient(135deg,#cbd5e1,#94a3b8); box-shadow:none; cursor:not-allowed; opacity:.7; }
+.task-status { background:var(--teal-light); border:1.5px dashed #99f6e4; border-radius:14px; padding:14px 18px; margin:14px 0; }
+.task-status-title { font-size:.9em; color:var(--teal-dark); margin-bottom:10px; font-weight:bold; }
+.task-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed #99f6e4; font-size:.88em; color:var(--muted); }
+.task-item:last-child { border-bottom:none; }
+.task-item.done { color:var(--text); }
+.task-check { width:24px; height:24px; border-radius:50%; border:2px solid #99f6e4; background:white; display:flex; align-items:center; justify-content:center; font-size:.85em; flex-shrink:0; transition:all .3s; }
+.task-item.done .task-check { background:linear-gradient(135deg,#14b8a6,#6366f1); border-color:transparent; color:white; }
+.quiz-opt { padding:12px 16px; border:2px solid #99f6e4; border-radius:12px; cursor:pointer; background:white; text-align:left; font-family:'Jua',sans-serif; font-size:.93em; transition:all .2s; margin-bottom:8px; width:100%; }
+.quiz-opt:hover:not(:disabled) { border-color:var(--teal); background:var(--teal-light); }
+.quiz-opt.right { border-color:#34d399; background:#ecfdf5; color:#065f46; }
+.quiz-opt.wrong { border-color:#f87171; background:#fff1f2; color:#991b1b; }
+.exp-box { display:none; border-radius:14px; padding:16px; margin:10px 0; border:1.5px solid; }
+.exp-box.show { display:block; animation:fadeUp .3s; }
+.exp-box.ok { background:#ecfdf5; border-color:#34d399; color:#065f46; }
+.exp-box.ng { background:#fff1f2; border-color:#f87171; color:#991b1b; }
+.compare-tbl { width:100%; border-collapse:collapse; font-size:.88em; margin:12px 0; }
+.compare-tbl th { background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; padding:10px 12px; text-align:center; }
+.compare-tbl td { padding:10px 12px; border:1.5px solid #99f6e4; }
+.compare-tbl tr:nth-child(even) td { background:var(--teal-light); }
+.compare-tbl .good { color:#059669; font-weight:bold; }
+.compare-tbl .bad  { color:#dc2626; }
+.congrats-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+.congrats-overlay.show { display:flex; }
+.congrats-box { background:white; border-radius:24px; padding:40px; text-align:center; max-width:360px; width:90%; animation:popIn .4s cubic-bezier(.175,.885,.32,1.275); border:3px solid #99f6e4; }
+@keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+.congrats-box h2 { font-size:1.6em; color:var(--teal-dark); margin-bottom:8px; }
+.congrats-box p { color:var(--muted); margin-bottom:18px; line-height:1.7; }
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:linear-gradient(135deg,#0f766e,#4f46e5); color:white; padding:14px 28px; border-radius:30px; font-family:'Jua',sans-serif; font-size:.95em; z-index:2000; opacity:0; transition:all .35s; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.submit-card { max-width:900px; margin:0 auto 40px; padding:0 16px; }
+.submit-inner { background:white; border-radius:var(--radius); padding:24px; box-shadow:0 4px 20px rgba(20,184,166,0.08); border:1.5px solid #99f6e4; }
+.submit-info-box { background:var(--teal-light); border-radius:12px; padding:14px 18px; margin-bottom:16px; font-size:.9rem; line-height:2.4; border:1.5px solid #99f6e4; }
+.submit-btn-main { font-family:'Jua',sans-serif; display:block; width:100%; padding:15px; font-size:1.1rem; border:none; border-radius:18px; background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; cursor:pointer; box-shadow:0 4px 16px rgba(20,184,166,0.4); transition:transform .2s; }
+.submit-btn-main:hover:not(:disabled) { transform:scale(1.02); }
+.submit-btn-main:disabled { opacity:.5; cursor:not-allowed; }
+.submit-done-box { display:none; text-align:center; padding:24px; background:#ecfdf5; border-radius:16px; margin-top:14px; border:1.5px solid #34d399; }
+.flow { display:flex; flex-direction:column; align-items:center; }
+.flow-box { padding:12px 26px; border-radius:14px; color:white; text-align:center; width:280px; margin:3px 0; }
+.flow-arrow { color:var(--teal); font-size:1.6em; }
+.site-footer { text-align:center; padding:28px 20px; color:var(--muted); font-size:.88em; border-top:2px dashed #99f6e4; margin-top:40px; background:white; }
+.made-by { display:inline-block; background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; padding:8px 26px; border-radius:30px; margin-top:10px; }
+@media(max-width:600px){
+  .site-header h1{font-size:1.5em}
+  .ch-btn{font-size:.76em;padding:6px 10px}
+  .apa-field-row{flex-direction:column}
+  .flow-box{width:220px}
+  .self-check-btns{flex-direction:column}
+}
+
+
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📝 정보 리터러시 학습 2단계</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #14b8a6; --teal-dark: #0f766e; --teal-light: #f0fdfa;
+  --indigo: #6366f1; --indigo-light: #eef2ff;
+  --green: #34d399; --green-dark: #059669; --green-light: #ecfdf5;
+  --amber: #fbbf24; --amber-light: #fffbeb;
+  --red: #f87171; --red-light: #fff1f2;
+  --blue: #60a5fa; --blue-light: #eff6ff;
+  --purple: #a78bfa; --purple-light: #f5f3ff;
+  --bg: #f0fdfa; --card: #ffffff; --text: #1e293b; --muted: #94a3b8;
+  --radius: 20px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Jua','Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+#loginScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:linear-gradient(135deg,#f0fdfa,#e0f2fe,#f5f3ff); }
+.login-card { background:white; border-radius:28px; padding:44px 38px; box-shadow:0 12px 48px rgba(20,184,166,0.2); max-width:440px; width:100%; text-align:center; border:2px solid #99f6e4; }
+.login-emoji { font-size:3.8rem; display:block; margin-bottom:10px; animation:floatEmoji 2.4s ease-in-out infinite; }
+@keyframes floatEmoji { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.login-title { font-size:1.7rem; color:var(--teal-dark); margin-bottom:4px; }
+.login-sub { font-size:.92rem; color:var(--muted); margin-bottom:28px; }
+.login-form { display:flex; flex-direction:column; gap:14px; text-align:left; }
+.login-row { display:flex; gap:10px; }
+.login-label { font-size:.9rem; color:var(--teal-dark); margin-bottom:3px; display:block; }
+.login-input { font-family:'Jua',sans-serif; width:100%; padding:12px 16px; font-size:1rem; border:2px solid #99f6e4; border-radius:14px; outline:none; color:var(--text); background:var(--teal-light); transition:border-color .2s; }
+.login-input:focus { border-color:var(--teal); background:white; }
+.login-input.err { border-color:var(--red); background:var(--red-light); }
+.login-err { font-size:.85rem; color:var(--red); display:none; }
+.login-btn { font-family:'Jua',sans-serif; width:100%; padding:14px; font-size:1.1rem; border:none; border-radius:18px; background:linear-gradient(135deg,#14b8a6,#0f766e); color:white; cursor:pointer; box-shadow:0 4px 14px rgba(20,184,166,0.4); transition:transform .2s; }
+.login-btn:hover { transform:scale(1.02); }
+.login-notice { margin-top:18px; padding:12px 16px; background:var(--teal-light); border-radius:12px; font-size:.85rem; color:var(--muted); line-height:1.6; border:1px dashed #99f6e4; }
+.site-header { background:linear-gradient(135deg,#0f766e,#14b8a6,#6366f1); color:white; padding:36px 20px 28px; text-align:center; position:relative; overflow:hidden; }
+.site-header h1 { font-size:2em; position:relative; }
+.site-header p { opacity:.9; margin-top:8px; font-size:1em; }
+.header-decos { display:flex; justify-content:center; gap:10px; margin-top:14px; flex-wrap:wrap; }
+.header-deco { background:rgba(255,255,255,0.25); border:1px solid rgba(255,255,255,0.5); border-radius:20px; padding:5px 14px; font-size:.82em; }
+#studentBadge { display:none; margin-top:10px; background:rgba(255,255,255,0.25); border:1px solid rgba(255,255,255,0.5); border-radius:20px; padding:5px 18px; font-size:.88em; }
+.prog-wrap { background:white; padding:12px 24px; box-shadow:0 2px 12px rgba(20,184,166,0.15); position:sticky; top:0; z-index:200; display:flex; align-items:center; gap:12px; border-bottom:2px solid #99f6e4; }
+.prog-track { flex:1; height:12px; background:#99f6e4; border-radius:10px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(90deg,#14b8a6,#6366f1); border-radius:10px; transition:width .6s; width:0%; }
+#progPct { font-weight:800; color:var(--teal-dark); min-width:36px; }
+.chapter-nav { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; padding:14px 16px; background:white; border-bottom:2px solid #99f6e4; position:sticky; top:50px; z-index:190; }
+.ch-btn { padding:8px 16px; border:2px solid #99f6e4; border-radius:30px; background:white; color:var(--muted); cursor:pointer; font-family:'Jua',sans-serif; font-size:.83em; transition:all .25s; }
+.ch-btn:hover:not(.locked) { border-color:var(--teal); color:var(--teal); }
+.ch-btn.active { background:linear-gradient(135deg,#14b8a6,#6366f1); border-color:transparent; color:white; box-shadow:0 4px 14px rgba(20,184,166,0.4); }
+.ch-btn.locked { opacity:.4; cursor:not-allowed; pointer-events:none; }
+.section { display:none; animation:fadeUp .35s ease; }
+.section.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.container { max-width:900px; margin:24px auto; padding:0 16px; }
+.card { background:var(--card); border-radius:var(--radius); padding:24px; margin-bottom:18px; box-shadow:0 4px 20px rgba(20,184,166,0.08); border:1.5px solid #99f6e4; }
+.card-title { font-size:1.15em; color:var(--teal-dark); margin-bottom:16px; padding-bottom:12px; border-bottom:2px dashed #99f6e4; display:flex; align-items:center; gap:8px; }
+.hl { border-radius:12px; padding:14px 16px; margin:10px 0; line-height:2; }
+.hl-teal   { background:#f0fdfa; border-left:4px solid #14b8a6; }
+.hl-green  { background:#ecfdf5; border-left:4px solid #34d399; }
+.hl-red    { background:#fff1f2; border-left:4px solid #f87171; }
+.hl-amber  { background:#fffbeb; border-left:4px solid #fbbf24; }
+.hl-purple { background:#f5f3ff; border-left:4px solid #a78bfa; }
+.hl-blue   { background:#eff6ff; border-left:4px solid #60a5fa; }
+.hl-indigo { background:#eef2ff; border-left:4px solid #6366f1; }
+.apa-reference-card {
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+  border-radius:18px; padding:20px; margin:14px 0;
+  border:2px solid #334155; position:relative; overflow:hidden;
+}
+.apa-reference-card::before {
+  content:'📌 APA 참고 카드';
+  position:absolute; top:12px; right:14px;
+  background:rgba(20,184,166,0.3); color:#5eead4;
+  border-radius:10px; padding:3px 10px; font-size:.78em;
+}
+.apa-ref-title { color:#5eead4; font-size:1em; margin-bottom:14px; }
+.apa-format-box { background:rgba(255,255,255,0.08); border-radius:12px; padding:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1); }
+.apa-format-title { color:#a78bfa; font-size:.82em; margin-bottom:8px; }
+.apa-format-text { color:#e2e8f0; font-size:.88em; line-height:1.9; font-family:'Courier New',monospace; }
+.apa-format-text strong { color:#fbbf24; }
+.apa-example { background:rgba(52,211,153,0.1); border-radius:10px; padding:12px; margin-top:8px; border:1px solid rgba(52,211,153,0.3); }
+.apa-example-title { color:#34d399; font-size:.78em; margin-bottom:6px; }
+.apa-example-text { color:#d1fae5; font-size:.83em; line-height:1.8; font-family:'Courier New',monospace; }
+.apa-warning { background:rgba(248,113,113,0.1); border-radius:10px; padding:10px 12px; margin-top:10px; border:1px solid rgba(248,113,113,0.3); color:#fca5a5; font-size:.82em; line-height:1.7; }
+.apa-tip { background:rgba(251,191,36,0.1); border-radius:10px; padding:10px 12px; margin-top:8px; border:1px solid rgba(251,191,36,0.3); color:#fde68a; font-size:.82em; line-height:1.7; }
+.original-text-card { border-radius:16px; overflow:hidden; margin:14px 0; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+.otc-header { padding:16px 20px; color:white; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; }
+.otc-header h3 { font-size:1em; }
+.otc-meta { font-size:.82em; opacity:.9; margin-top:4px; }
+.otc-body { padding:20px; background:white; border:2px solid; border-top:none; font-size:.92em; line-height:2; }
+.otc-highlight { background:#fef9c3; border-radius:4px; padding:1px 4px; }
+.otc-check-list { margin-top:14px; }
+.otc-check-item { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:.88em; }
+.otc-check-item:last-child { border-bottom:none; }
+.write-area { background:white; border:2px solid #99f6e4; border-radius:14px; padding:16px; margin:10px 0; }
+.write-label { font-size:.88em; color:var(--teal-dark); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.write-input { width:100%; padding:12px 14px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Jua',sans-serif; font-size:.92em; outline:none; resize:vertical; background:#f8fafc; color:var(--text); transition:border-color .2s; min-height:60px; }
+.write-input:focus { border-color:var(--teal); background:white; }
+.write-input.done { border-color:#34d399; background:#f0fdf4; }
+.apa-input-wrap { background:#1e293b; border-radius:12px; padding:16px; margin:10px 0; }
+.apa-input-label { color:#94a3b8; font-size:.8em; margin-bottom:6px; }
+.apa-field-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.apa-field { flex:1; min-width:130px; }
+.apa-field label { display:block; color:#5eead4; font-size:.75em; margin-bottom:4px; }
+.apa-field input, .apa-field textarea {
+  width:100%; padding:8px 10px; border:1.5px solid #334155;
+  border-radius:8px; font-family:'Jua',sans-serif; font-size:.88em;
+  background:#0f172a; color:#e2e8f0; outline:none; transition:border-color .2s;
+}
+.apa-field input:focus, .apa-field textarea:focus { border-color:#14b8a6; }
+.apa-field input.ok  { border-color:#34d399; background:#052e16; }
+.apa-field input.err { border-color:#f87171; background:#450a0a; }
+.apa-preview-box { background:#0f172a; border-radius:10px; padding:12px 14px; margin-top:10px; border:1px solid #334155; }
+.apa-preview-label { color:#6366f1; font-size:.75em; margin-bottom:6px; }
+.apa-preview-text { color:#c7d2fe; font-size:.85em; font-family:'Courier New',monospace; line-height:1.8; min-height:40px; }
+.fb-box { display:none; border-radius:14px; padding:16px; margin:10px 0; border:2px solid; animation:fadeUp .3s ease; }
+.fb-box.show { display:block; }
+.fb-box.good { background:#ecfdf5; border-color:#34d399; color:#065f46; }
+.fb-box.warn { background:#fffbeb; border-color:#fbbf24; color:#92400e; }
+.fb-box.info { background:#eff6ff; border-color:#60a5fa; color:#1d4ed8; }
+.fb-box.bad  { background:#fff1f2; border-color:#f87171; color:#991b1b; }
+/* 자기점검 체크 아이템 (기존 peer-check 스타일 재활용) */
+.self-check-grid { display:grid; grid-template-columns:1fr; gap:8px; margin:12px 0; }
+.self-check-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border:2px solid #99f6e4; border-radius:12px; background:white; transition:all .25s; }
+.self-check-item.checked-ok  { border-color:#34d399; background:#ecfdf5; }
+.self-check-item.checked-bad { border-color:#f87171; background:#fff1f2; }
+.self-check-icon { font-size:1.3em; flex-shrink:0; }
+.self-check-text { font-size:.88em; flex:1; line-height:1.6; }
+.self-check-btns { display:flex; gap:6px; flex-shrink:0; }
+.self-btn { padding:5px 12px; border:none; border-radius:8px; font-family:'Jua',sans-serif; font-size:.8em; cursor:pointer; transition:all .2s; }
+.self-btn.yes { background:#ecfdf5; color:#059669; border:1.5px solid #34d399; }
+.self-btn.no  { background:#fff1f2; color:#dc2626; border:1.5px solid #f87171; }
+.self-btn.yes.selected { background:#34d399; color:white; }
+.self-btn.no.selected  { background:#f87171; color:white; }
+.self-section-label { font-size:.85em; color:var(--teal-dark); font-weight:bold;
+  padding:8px 0 6px; border-bottom:2px solid #99f6e4; margin:10px 0 6px; }
+/* 내가 쓴 내용 미리보기 박스 */
+.review-box { background:white; border:1.5px solid #99f6e4; border-radius:12px; padding:14px; font-size:.88em; line-height:1.9; color:#475569; min-height:56px; white-space:pre-wrap; word-break:break-all; }
+.review-apa-box { background:#1e293b; border-radius:12px; padding:12px 14px; font-size:.85em; color:#5eead4; font-family:'Courier New',monospace; line-height:1.8; min-height:36px; word-break:break-all; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:10px 22px; border:none; border-radius:30px; cursor:pointer; font-family:'Jua',sans-serif; font-size:.92em; transition:all .25s; margin:4px; }
+.btn-teal   { background:linear-gradient(135deg,#14b8a6,#0f766e); color:white; box-shadow:0 4px 14px rgba(20,184,166,0.4); }
+.btn-teal:hover { transform:translateY(-2px); }
+.btn-indigo { background:linear-gradient(135deg,#6366f1,#4f46e5); color:white; box-shadow:0 4px 14px rgba(99,102,241,0.4); }
+.btn-indigo:hover { transform:translateY(-2px); }
+.btn-green  { background:linear-gradient(135deg,#34d399,#059669); color:white; box-shadow:0 4px 14px rgba(52,211,153,0.3); }
+.btn-green:hover { transform:translateY(-2px); }
+.btn-ghost  { background:var(--teal-light); color:var(--teal-dark); border:1.5px solid #99f6e4; }
+.btn-ghost:hover { background:#99f6e4; }
+.complete-btn-wrap { text-align:center; margin:20px 0 8px; }
+.complete-btn { background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; border:none; border-radius:30px; padding:14px 36px; font-family:'Jua',sans-serif; font-size:1.05em; cursor:pointer; box-shadow:0 6px 20px rgba(20,184,166,0.4); transition:all .3s; display:inline-flex; align-items:center; gap:8px; }
+.complete-btn:hover:not(.btn-locked) { transform:translateY(-3px); }
+.complete-btn.btn-locked { background:linear-gradient(135deg,#cbd5e1,#94a3b8); box-shadow:none; cursor:not-allowed; opacity:.7; }
+.task-status { background:var(--teal-light); border:1.5px dashed #99f6e4; border-radius:14px; padding:14px 18px; margin:14px 0; }
+.task-status-title { font-size:.9em; color:var(--teal-dark); margin-bottom:10px; font-weight:bold; }
+.task-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed #99f6e4; font-size:.88em; color:var(--muted); }
+.task-item:last-child { border-bottom:none; }
+.task-item.done { color:var(--text); }
+.task-check { width:24px; height:24px; border-radius:50%; border:2px solid #99f6e4; background:white; display:flex; align-items:center; justify-content:center; font-size:.85em; flex-shrink:0; transition:all .3s; }
+.task-item.done .task-check { background:linear-gradient(135deg,#14b8a6,#6366f1); border-color:transparent; color:white; }
+.quiz-opt { padding:12px 16px; border:2px solid #99f6e4; border-radius:12px; cursor:pointer; background:white; text-align:left; font-family:'Jua',sans-serif; font-size:.93em; transition:all .2s; margin-bottom:8px; width:100%; }
+.quiz-opt:hover:not(:disabled) { border-color:var(--teal); background:var(--teal-light); }
+.quiz-opt.right { border-color:#34d399; background:#ecfdf5; color:#065f46; }
+.quiz-opt.wrong { border-color:#f87171; background:#fff1f2; color:#991b1b; }
+.exp-box { display:none; border-radius:14px; padding:16px; margin:10px 0; border:1.5px solid; }
+.exp-box.show { display:block; animation:fadeUp .3s; }
+.exp-box.ok { background:#ecfdf5; border-color:#34d399; color:#065f46; }
+.exp-box.ng { background:#fff1f2; border-color:#f87171; color:#991b1b; }
+.compare-tbl { width:100%; border-collapse:collapse; font-size:.88em; margin:12px 0; }
+.compare-tbl th { background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; padding:10px 12px; text-align:center; }
+.compare-tbl td { padding:10px 12px; border:1.5px solid #99f6e4; }
+.compare-tbl tr:nth-child(even) td { background:var(--teal-light); }
+.compare-tbl .good { color:#059669; font-weight:bold; }
+.compare-tbl .bad  { color:#dc2626; }
+.congrats-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+.congrats-overlay.show { display:flex; }
+.congrats-box { background:white; border-radius:24px; padding:40px; text-align:center; max-width:360px; width:90%; animation:popIn .4s cubic-bezier(.175,.885,.32,1.275); border:3px solid #99f6e4; }
+@keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+.congrats-box h2 { font-size:1.6em; color:var(--teal-dark); margin-bottom:8px; }
+.congrats-box p { color:var(--muted); margin-bottom:18px; line-height:1.7; }
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:linear-gradient(135deg,#0f766e,#4f46e5); color:white; padding:14px 28px; border-radius:30px; font-family:'Jua',sans-serif; font-size:.95em; z-index:2000; opacity:0; transition:all .35s; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.submit-card { max-width:900px; margin:0 auto 40px; padding:0 16px; }
+.submit-inner { background:white; border-radius:var(--radius); padding:24px; box-shadow:0 4px 20px rgba(20,184,166,0.08); border:1.5px solid #99f6e4; }
+.submit-info-box { background:var(--teal-light); border-radius:12px; padding:14px 18px; margin-bottom:16px; font-size:.9rem; line-height:2.4; border:1.5px solid #99f6e4; }
+.submit-btn-main { font-family:'Jua',sans-serif; display:block; width:100%; padding:15px; font-size:1.1rem; border:none; border-radius:18px; background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; cursor:pointer; box-shadow:0 4px 16px rgba(20,184,166,0.4); transition:transform .2s; }
+.submit-btn-main:hover:not(:disabled) { transform:scale(1.02); }
+.submit-btn-main:disabled { opacity:.5; cursor:not-allowed; }
+.submit-done-box { display:none; text-align:center; padding:24px; background:#ecfdf5; border-radius:16px; margin-top:14px; border:1.5px solid #34d399; }
+.flow { display:flex; flex-direction:column; align-items:center; }
+.flow-box { padding:12px 26px; border-radius:14px; color:white; text-align:center; width:280px; margin:3px 0; }
+.flow-arrow { color:var(--teal); font-size:1.6em; }
+.site-footer { text-align:center; padding:28px 20px; color:var(--muted); font-size:.88em; border-top:2px dashed #99f6e4; margin-top:40px; background:white; }
+.made-by { display:inline-block; background:linear-gradient(135deg,#14b8a6,#6366f1); color:white; padding:8px 26px; border-radius:30px; margin-top:10px; }
+@media(max-width:600px){
+  .site-header h1{font-size:1.5em}
+  .ch-btn{font-size:.76em;padding:6px 10px}
+  .apa-field-row{flex-direction:column}
+  .flow-box{width:220px}
+  .self-check-btns{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="loginScreen">
+  <div class="login-card">
+    <span class="login-emoji">📝</span>
+    <div class="login-title">정보 리터러시 학습</div>
+    <div class="login-sub">2단계 · 베끼지 않고 내 말로 쓰기 ✍️</div>
+    <div class="login-form">
+      <div class="login-row">
+        <div style="flex:1;"><label class="login-label">반 *</label><input class="login-input" id="inp-class" type="number" min="1" max="20" placeholder="예) 3"></div>
+        <div style="flex:1;"><label class="login-label">번호 *</label><input class="login-input" id="inp-num" type="number" min="1" max="40" placeholder="예) 15"></div>
+      </div>
+      <div><label class="login-label">이름 *</label><input class="login-input" id="inp-name" type="text" placeholder="이름을 입력하세요" maxlength="8"></div>
+      <div class="login-err" id="loginErr">⚠️ 반, 번호, 이름을 모두 입력해주세요!</div>
+      <button class="login-btn" onclick="doLogin()">✍️ 학습 시작하기</button>
+    </div>
+    <div class="login-notice">💡 입력한 정보는 학습 결과 제출 시 선생님께 전달됩니다.</div>
+  </div>
+</div>
+
+<!-- 메인 앱 -->
+<div id="mainApp" style="display:none;">
+<div class="toast" id="lockToast"></div>
+<header class="site-header">
+  <h1>📝✨ 베끼지 않고 내 말로 쓰기</h1>
+  <p>정보 리터러시 학습 2단계 · APA 출처 작성 익히기</p>
+  <div class="header-decos">
+    <span class="header-deco">📖 원문 읽기</span>
+    <span class="header-deco">✍️ 내 말로 요약</span>
+    <span class="header-deco">📌 APA 출처 작성</span>
+    <span class="header-deco">🔎 스스로 점검</span>
+  </div>
+  <div id="studentBadge"></div>
+</header>
+<div class="prog-wrap">
+  <span>✍️ 진도</span>
+  <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
+  <span id="progPct">0%</span>
+</div>
+<nav class="chapter-nav">
+  <button class="ch-btn active" id="ch-btn-0" onclick="goChapter(0)">🌟 시작</button>
+  <button class="ch-btn locked" id="ch-btn-1" onclick="goChapter(1)">🔒 📌 APA안내</button>
+  <button class="ch-btn locked" id="ch-btn-2" onclick="goChapter(2)">🔒 📖 원문①읽기</button>
+  <button class="ch-btn locked" id="ch-btn-3" onclick="goChapter(3)">🔒 ✍️ 요약+출처①</button>
+  <button class="ch-btn locked" id="ch-btn-4" onclick="goChapter(4)">🔒 📖 원문②읽기</button>
+  <button class="ch-btn locked" id="ch-btn-5" onclick="goChapter(5)">🔒 ✍️ 요약+출처②</button>
+  <button class="ch-btn locked" id="ch-btn-6" onclick="goChapter(6)">🔒 🔎 스스로점검</button>
+  <button class="ch-btn locked" id="ch-btn-7" onclick="goChapter(7)">🔒 ✏️ 확인문제</button>
+  <button class="ch-btn locked" id="ch-btn-8" onclick="goChapter(8)">🔒 🎯 마무리</button>
+</nav>
+
+<div class="container">
+
+<!-- ══ 0. 시작 ══ -->
+<div class="section active" id="tab-0">
+  <div class="card">
+    <div class="card-title">🌟 오늘의 학습 목표</div>
+    <div class="hl hl-teal">
+      <p>📌 원문을 읽고 <strong>내 말로 요약</strong>하는 방법을 익힌다.</p>
+      <p>📌 인터넷 자료의 출처를 <strong>APA 형식</strong>으로 작성할 수 있다.</p>
+      <p>📌 '복붙(복사+붙여넣기)'과 '내 말로 쓰기'의 차이를 이해한다.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🤔 생각해보기</div>
+    <div class="hl hl-amber">
+      <p>❓ 숙제에서 인터넷 내용을 그대로 복붙(복사+붙여넣기)해본 적 있나요?<br>
+      그게 왜 문제가 될 수 있을까요?</p>
+    </div>
+    <button class="btn btn-teal" onclick="toggleEl('hint0'); markTask(0,'think')">💡 생각해보고 클릭하기</button>
+    <div id="hint0" style="display:none;" class="hl hl-green">
+      <p>✅ 다른 사람이 쓴 글을 출처 없이 그대로 사용하면 <strong>표절(剽竊)</strong>이 돼요!<br>
+      정보를 제대로 이해했는지도 확인할 수 없고, 나중에 자료조사 보고서를 쓸 때도 문제가 돼요.<br>
+      <strong>내 말로 요약 + 출처 표기</strong>가 올바른 방법이에요 📝</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🗺️ 오늘의 학습 흐름</div>
+    <div class="flow">
+      <div class="flow-box" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">📌 APA 형식 배우기</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box" style="background:linear-gradient(135deg,#14b8a6,#0f766e);">📖 원문 ① 읽기 (당뇨병)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box" style="background:linear-gradient(135deg,#34d399,#059669);">✍️ 내 말로 요약 + APA 출처 작성</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box" style="background:linear-gradient(135deg,#f59e0b,#d97706);">📖 원문 ② 읽기 (비만)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box" style="background:linear-gradient(135deg,#f472b6,#ec4899);">✍️ 내 말로 요약 + APA 출처 작성</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">🔎 스스로 점검 → ✏️ 확인 문제</div>
+    </div>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 완료해야 다음으로!</div>
+    <div class="task-item" id="task-0-think"><div class="task-check">1</div> 💡 생각해보기 버튼 클릭</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-0" onclick="tryComplete(0)">시작하기 ✍️ →</button>
+  </div>
+</div>
+
+<!-- ══ 1. APA 안내 ══ -->
+<div class="section" id="tab-1">
+  <div class="card">
+    <div class="card-title">📌 APA 형식이란?</div>
+    <div class="hl hl-indigo">
+      <p>💡 <strong>APA (American Psychological Association)</strong> 형식은 출처를 표기하는 국제적인 방법이에요.<br>
+      "이 정보는 여기서 가져왔어요!"라고 독자에게 알려주는 역할을 해요.</p>
+    </div>
+    <div class="apa-reference-card">
+      <div class="apa-ref-title">📌 웹사이트 APA 기본 형식</div>
+      <div class="apa-format-box">
+        <div class="apa-format-title">📐 형식</div>
+        <div class="apa-format-text">
+          <strong>작성자.</strong> (<strong>연도</strong>). <strong>글 제목</strong>. 사이트 이름. URL
+        </div>
+        <div class="apa-example">
+          <div class="apa-example-title">✅ 예시 1 — 작성자가 기관인 경우</div>
+          <div class="apa-example-text">질병관리청. (2023). 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr/...</div>
+        </div>
+        <div class="apa-example">
+          <div class="apa-example-title">✅ 예시 2 — 작성자가 개인인 경우</div>
+          <div class="apa-example-text">홍길동. (2023). 당뇨병 예방법. 서울아산병원 건강정보. https://www.amc.seoul.kr/...</div>
+        </div>
+      </div>
+      <div class="apa-tip">
+        💡 <strong>이럴 땐 이렇게!</strong><br>
+        • 작성자를 찾을 수 없을 때 → 사이트 이름을 작성자 자리에 써요<br>
+        • 날짜를 찾을 수 없을 때 → (n.d.) 라고 써요 (no date의 약자)<br>
+        • URL이 너무 길면 → 첫 부분만 써도 괜찮아요
+      </div>
+      <div class="apa-warning">
+        ⚠️ <strong>꼭 기억해요!</strong><br>
+        • 작성자 이름 뒤에는 마침표(.) 를 붙여요<br>
+        • 연도는 반드시 소괄호 ( ) 안에 써요<br>
+        • 제목 뒤에도 마침표(.) 를 붙여요
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🎮 APA 순서 맞추기 연습</div>
+    <div class="hl hl-teal"><p>💡 아래 정보로 APA 형식을 완성해봐요!</p></div>
+    <div style="background:#f8fafc;border-radius:14px;padding:16px;margin:12px 0;border:1.5px solid #e2e8f0;">
+      <p style="font-size:.88em;color:#64748b;margin-bottom:12px;">📋 다음 정보로 APA 출처를 만들어봐요:</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:14px;">
+        <div style="background:#dbeafe;border-radius:8px;padding:8px 12px;font-size:.85em;"><span style="color:#1d4ed8;font-weight:bold;">작성자:</span> 서울대학교병원</div>
+        <div style="background:#d1fae5;border-radius:8px;padding:8px 12px;font-size:.85em;"><span style="color:#065f46;font-weight:bold;">연도:</span> 2023</div>
+        <div style="background:#fef3c7;border-radius:8px;padding:8px 12px;font-size:.85em;"><span style="color:#92400e;font-weight:bold;">제목:</span> 비만이란?</div>
+        <div style="background:#ede9fe;border-radius:8px;padding:8px 12px;font-size:.85em;"><span style="color:#5b21b6;font-weight:bold;">사이트:</span> 서울대병원 건강정보</div>
+        <div style="background:#fce7f3;border-radius:8px;padding:8px 12px;font-size:.85em;font-family:'Courier New',monospace;"><span style="color:#be185d;font-weight:bold;">URL:</span> https://www.snuh.org/...</div>
+      </div>
+      <p style="font-size:.88em;color:#64748b;margin-bottom:8px;">✍️ APA 형식으로 써봐요:</p>
+      <textarea class="write-input" id="apa-practice-input" placeholder="예) 서울대학교병원. (2023). 비만이란?. 서울대병원 건강정보. https://www.snuh.org/..." style="min-height:70px;"></textarea>
+      <button class="btn btn-teal" onclick="checkApaPracticeBtn()" style="margin-top:8px;">✅ 확인하기</button>
+      <button class="btn btn-ghost" onclick="showApaAnswer()" style="margin-top:8px;">💡 정답 보기</button>
+      <div class="fb-box" id="apa-practice-fb"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">✅ APA 작성 체크리스트</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+      <div style="background:#f0fdfa;border:2px solid #99f6e4;border-radius:12px;padding:12px;font-size:.88em;line-height:1.7;">
+        <div style="font-size:1.2em;margin-bottom:4px;">👤</div><strong>작성자</strong><br>기관명 또는 사람 이름<br><span style="color:#059669;">뒤에 마침표(.)</span>
+      </div>
+      <div style="background:#eef2ff;border:2px solid #c7d2fe;border-radius:12px;padding:12px;font-size:.88em;line-height:1.7;">
+        <div style="font-size:1.2em;margin-bottom:4px;">📅</div><strong>연도</strong><br>소괄호 안에<br><span style="color:#4f46e5;">(2023). 형식</span>
+      </div>
+      <div style="background:#fffbeb;border:2px solid #fde68a;border-radius:12px;padding:12px;font-size:.88em;line-height:1.7;">
+        <div style="font-size:1.2em;margin-bottom:4px;">📄</div><strong>글 제목</strong><br>글의 제목 그대로<br><span style="color:#d97706;">뒤에 마침표(.)</span>
+      </div>
+      <div style="background:#f5f3ff;border:2px solid #ddd6fe;border-radius:12px;padding:12px;font-size:.88em;line-height:1.7;">
+        <div style="font-size:1.2em;margin-bottom:4px;">🌐</div><strong>사이트 이름</strong><br>홈페이지 이름<br><span style="color:#7c3aed;">마침표(.)</span>
+      </div>
+      <div style="background:#fff1f2;border:2px solid #fecaca;border-radius:12px;padding:12px;font-size:.88em;line-height:1.7;">
+        <div style="font-size:1.2em;margin-bottom:4px;">🔗</div><strong>URL</strong><br>웹사이트 주소<br><span style="color:#dc2626;">마지막엔 마침표 없음</span>
+      </div>
+    </div>
+    <button class="btn btn-teal" style="margin-top:14px;" onclick="markTask(1,'checklist')">✅ 체크리스트 확인 완료!</button>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 완료해야 다음으로!</div>
+    <div class="task-item" id="task-1-practice"><div class="task-check">1</div> 🎮 APA 연습 문제 완료</div>
+    <div class="task-item" id="task-1-checklist"><div class="task-check">2</div> ✅ 체크리스트 확인 완료</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-1" onclick="tryComplete(1)">APA 배우기 완료! 원문 읽으러 →</button>
+  </div>
+</div>
+
+<!-- ══ 2. 원문 ① 읽기 ══ -->
+<div class="section" id="tab-2">
+  <div class="card">
+    <div class="card-title">📖 원문 ① 읽기 — 당뇨병</div>
+    <div class="hl hl-teal"><p>💡 아래 원문을 꼼꼼히 읽어봐요. 다음 단계에서 원문을 보지 않고 써야 해요 👀</p></div>
+    <div class="original-text-card">
+      <div class="otc-header" style="background:linear-gradient(135deg,#0f766e,#14b8a6);border-radius:14px 14px 0 0;">
+        <div>
+          <h3>당뇨병이란?</h3>
+          <div class="otc-meta">📍 질병관리청 국가건강정보포털 (health.kdca.go.kr)<br>👤 작성자: 질병관리청 &nbsp;|&nbsp; 📅 2023.09.15</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.2);border-radius:10px;padding:6px 12px;font-size:.8em;">📌 원문 자료</div>
+      </div>
+      <div class="otc-body" style="border-color:#99f6e4;">
+        <p>당뇨병은 <span class="otc-highlight">인슐린의 분비 또는 기능에 문제</span>가 생겨 혈액 속 <span class="otc-highlight">포도당 농도가 높아지는 질환</span>입니다.</p><br>
+        <p>인슐린은 췌장에서 분비되는 호르몬으로, 혈액 속 포도당을 세포 안으로 이동시켜 에너지원으로 사용하게 합니다.</p><br>
+        <p>당뇨병의 주요 증상으로는 <span class="otc-highlight">극심한 갈증, 잦은 소변, 체중 감소, 피로감</span> 등이 있습니다.</p><br>
+        <p>당뇨병은 크게 <span class="otc-highlight">1형과 2형</span>으로 나뉘며, <strong>2형 당뇨병</strong>은 비만, 운동 부족, 불규칙한 식습관 등 <span class="otc-highlight">생활습관과 밀접한 관련</span>이 있습니다. 우리나라 당뇨병 환자의 약 <strong>95%</strong>가 2형 당뇨병에 해당합니다.</p>
+        <div class="otc-check-list" style="margin-top:16px;background:#f0fdfa;border-radius:10px;padding:12px;border:1px dashed #99f6e4;">
+          <p style="font-size:.85em;color:var(--teal-dark);font-weight:bold;margin-bottom:8px;">📋 읽으면서 체크해봐요!</p>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r1c1')"><span id="r1c1" style="font-size:1.2em;cursor:pointer;">☐</span><span>당뇨병이 생기는 원인(인슐린 문제)을 이해했어요</span></div>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r1c2')"><span id="r1c2" style="font-size:1.2em;cursor:pointer;">☐</span><span>당뇨병의 주요 증상 4가지를 파악했어요</span></div>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r1c3')"><span id="r1c3" style="font-size:1.2em;cursor:pointer;">☐</span><span>2형 당뇨병과 생활습관의 관계를 이해했어요</span></div>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r1c4')"><span id="r1c4" style="font-size:1.2em;cursor:pointer;">☐</span><span>우리나라 당뇨병 환자의 95%가 2형임을 파악했어요</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="hl hl-amber" style="margin-top:10px;">
+      <p>⚠️ <strong>다음 단계에서는 이 원문을 볼 수 없어요!</strong><br>충분히 읽고 내용을 기억한 후 다음으로 넘어가요 📖</p>
+    </div>
+    <button class="btn btn-teal" onclick="markTask(2,'read1'); showToast('✅ 읽기 완료! 다음 단계로 가봐요!')">📖 다 읽었어요!</button>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 원문을 읽고 체크해야 넘어갈 수 있어요!</div>
+    <div class="task-item" id="task-2-read1"><div class="task-check">1</div> 📖 원문 ① 읽기 완료</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-2" onclick="tryComplete(2)">읽기 완료! 요약하러 가기 →</button>
+  </div>
+</div>
+
+<!-- ══ 3. 요약 + 출처 ① ══ -->
+<div class="section" id="tab-3">
+  <div class="card">
+    <div class="card-title">✍️ 내 말로 요약하기 ① — 당뇨병</div>
+    <div class="apa-reference-card" style="margin-bottom:16px;">
+      <div class="apa-ref-title">📌 APA 형식 빠른 참고</div>
+      <div class="apa-format-box">
+        <div class="apa-format-text"><strong>작성자.</strong> (<strong>연도</strong>). <strong>글 제목</strong>. 사이트 이름. URL</div>
+        <div class="apa-example">
+          <div class="apa-example-text">질병관리청. (2023). 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr</div>
+        </div>
+      </div>
+      <div class="apa-tip">💡 작성자 없음 → 사이트명 사용 &nbsp;|&nbsp; 날짜 없음 → (n.d.)</div>
+    </div>
+    <div class="hl hl-red">
+      <p>⚠️ <strong>원문은 숨겨져 있어요!</strong> 기억을 떠올려 내 말로 써봐요.<br>
+      원문의 문장을 그대로 쓰면 <strong>표절</strong>이에요. 나만의 표현으로 바꿔써봐요 ✍️</p>
+    </div>
+    <div class="write-area">
+      <div class="write-label">❓ 당뇨병이란 어떤 질병인가요? (정의)</div>
+      <textarea class="write-input" id="sum1-q1" placeholder="당뇨병은 ... 하는 질환입니다." oninput="checkSummary1()"></textarea>
+    </div>
+    <div class="write-area">
+      <div class="write-label">❓ 당뇨병의 주요 증상은 무엇인가요?</div>
+      <textarea class="write-input" id="sum1-q2" placeholder="당뇨병의 증상으로는 ..." oninput="checkSummary1()"></textarea>
+    </div>
+    <div class="write-area">
+      <div class="write-label">❓ 2형 당뇨병과 생활습관은 어떤 관계인가요?</div>
+      <textarea class="write-input" id="sum1-q3" placeholder="2형 당뇨병은 ... 관련이 있습니다." oninput="checkSummary1()"></textarea>
+    </div>
+    <div style="margin-top:4px;">
+      <button class="btn btn-teal" onclick="checkSummary1Btn()">✅ 요약 확인하기</button>
+      <div class="fb-box" id="sum1-fb"></div>
+    </div>
+  </div>
+  <div class="card" id="apa-section-1" style="display:none;">
+    <div class="card-title">📌 APA 출처 작성하기 ①</div>
+    <div class="hl hl-indigo"><p>💡 위에서 요약한 원문 ①의 출처를 APA 형식으로 작성해봐요!</p></div>
+    <div style="background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:14px;border:1.5px solid #e2e8f0;">
+      <p style="font-size:.85em;color:#64748b;font-weight:bold;margin-bottom:8px;">📋 원문 ① 정보 (참고용)</p>
+      <div style="font-size:.85em;line-height:2;color:#475569;">
+        📄 글 제목: <strong>당뇨병이란?</strong><br>
+        👤 작성자: <strong>질병관리청</strong><br>
+        📅 작성일: <strong>2023.09.15</strong><br>
+        🌐 사이트: <strong>국가건강정보포털</strong><br>
+        🔗 URL: <strong>https://health.kdca.go.kr/healthinfo/biz/health/gnrlzHealthInfo/gnrlzHealthInfo/gnrlzHealthInfoView.do</strong>
+      </div>
+    </div>
+    <div class="apa-input-wrap">
+      <div class="apa-input-label">각 항목을 채우면 아래에 APA 형식이 자동으로 완성돼요! 📌</div>
+      <div class="apa-field-row">
+        <div class="apa-field"><label>👤 작성자</label><input type="text" id="apa1-author" placeholder="예) 질병관리청" oninput="updateApaPreview1()"></div>
+        <div class="apa-field"><label>📅 연도 (숫자만)</label><input type="text" id="apa1-year" placeholder="예) 2023" maxlength="4" oninput="updateApaPreview1()"></div>
+      </div>
+      <div class="apa-field-row">
+        <div class="apa-field"><label>📄 글 제목</label><input type="text" id="apa1-title" placeholder="예) 당뇨병이란?" oninput="updateApaPreview1()"></div>
+        <div class="apa-field"><label>🌐 사이트 이름</label><input type="text" id="apa1-site" placeholder="예) 국가건강정보포털" oninput="updateApaPreview1()"></div>
+      </div>
+      <div class="apa-field-row">
+        <div class="apa-field" style="flex:2;"><label>🔗 URL</label><input type="text" id="apa1-url" placeholder="https://..." oninput="updateApaPreview1()"></div>
+      </div>
+      <div class="apa-preview-box">
+        <div class="apa-preview-label">📌 완성된 APA 출처 미리보기</div>
+        <div class="apa-preview-text" id="apa1-preview">항목을 입력하면 여기에 APA 형식이 나타나요...</div>
+      </div>
+    </div>
+    <button class="btn btn-green" onclick="checkApa1()">✅ APA 출처 확인하기</button>
+    <div class="fb-box" id="apa1-fb"></div>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 요약 + 출처 작성을 모두 해야 넘어갈 수 있어요!</div>
+    <div class="task-item" id="task-3-summary"><div class="task-check">1</div> ✍️ 내 말로 요약 완료</div>
+    <div class="task-item" id="task-3-apa"><div class="task-check">2</div> 📌 APA 출처 작성 완료</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-3" onclick="tryComplete(3)">① 완료! 원문 ② 읽으러 →</button>
+  </div>
+</div>
+
+<!-- ══ 4. 원문 ② 읽기 ══ -->
+<div class="section" id="tab-4">
+  <div class="card">
+    <div class="card-title">📖 원문 ② 읽기 — 비만</div>
+    <div class="hl hl-teal"><p>💡 이번에는 비만에 관한 원문이에요. 꼼꼼히 읽고 핵심을 파악해봐요!</p></div>
+    <div class="original-text-card">
+      <div class="otc-header" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:14px 14px 0 0;">
+        <div>
+          <h3>비만이란?</h3>
+          <div class="otc-meta">📍 서울대학교병원 건강정보 (www.snuh.org)<br>👤 작성자: 서울대학교병원 가정의학과 &nbsp;|&nbsp; 📅 2023.06.20</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.2);border-radius:10px;padding:6px 12px;font-size:.8em;">📌 원문 자료</div>
+      </div>
+      <div class="otc-body" style="border-color:#fde68a;">
+        <p>비만은 <span class="otc-highlight">체내에 지방이 과도하게 축적된 상태</span>를 말하며, 단순히 몸무게가 많이 나가는 것과는 다릅니다. 일반적으로 <span class="otc-highlight">체질량지수(BMI)가 25 이상</span>인 경우를 비만으로 정의합니다.</p><br>
+        <p>비만의 주요 원인으로는 <span class="otc-highlight">과식, 운동 부족, 유전적 요인, 스트레스, 수면 부족</span> 등이 있습니다.</p><br>
+        <p>비만은 <span class="otc-highlight">고혈압, 당뇨병, 심혈관 질환, 관절 질환</span> 등 다양한 합병증의 위험을 높입니다. 세계보건기구(WHO)는 비만을 <strong>21세기 신종 전염병</strong>으로 규정하고 있습니다.</p><br>
+        <p>비만 예방을 위해서는 <span class="otc-highlight">규칙적인 신체활동과 균형 잡힌 식습관</span>이 중요합니다. 특히 하루 <strong>30분 이상의 중강도 운동</strong>을 권장합니다.</p>
+        <div class="otc-check-list" style="margin-top:16px;background:#fffbeb;border-radius:10px;padding:12px;border:1px dashed #fde68a;">
+          <p style="font-size:.85em;color:#92400e;font-weight:bold;margin-bottom:8px;">📋 읽으면서 체크해봐요!</p>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r2c1')"><span id="r2c1" style="font-size:1.2em;cursor:pointer;">☐</span><span>비만의 정의(BMI 25 이상)를 이해했어요</span></div>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r2c2')"><span id="r2c2" style="font-size:1.2em;cursor:pointer;">☐</span><span>비만의 주요 원인 5가지를 파악했어요</span></div>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r2c3')"><span id="r2c3" style="font-size:1.2em;cursor:pointer;">☐</span><span>비만과 합병증의 관계를 이해했어요</span></div>
+          <div class="otc-check-item" onclick="toggleCheck(this,'r2c4')"><span id="r2c4" style="font-size:1.2em;cursor:pointer;">☐</span><span>비만 예방법(운동 30분 이상)을 파악했어요</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="hl hl-amber">
+      <p>⚠️ <strong>다음 단계에서는 이 원문을 볼 수 없어요!</strong><br>충분히 읽고 기억한 후 다음으로 넘어가요 📖</p>
+    </div>
+    <button class="btn btn-teal" onclick="markTask(4,'read2'); showToast('✅ 읽기 완료!')">📖 다 읽었어요!</button>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 원문을 읽어야 넘어갈 수 있어요!</div>
+    <div class="task-item" id="task-4-read2"><div class="task-check">1</div> 📖 원문 ② 읽기 완료</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-4" onclick="tryComplete(4)">읽기 완료! 요약하러 가기 →</button>
+  </div>
+</div>
+
+<!-- ══ 5. 요약 + 출처 ② ══ -->
+<div class="section" id="tab-5">
+  <div class="card">
+    <div class="card-title">✍️ 내 말로 요약하기 ② — 비만</div>
+    <div class="apa-reference-card" style="margin-bottom:16px;">
+      <div class="apa-ref-title">📌 APA 형식 빠른 참고</div>
+      <div class="apa-format-box">
+        <div class="apa-format-text"><strong>작성자.</strong> (<strong>연도</strong>). <strong>글 제목</strong>. 사이트 이름. URL</div>
+      </div>
+      <div class="apa-tip">💡 이번엔 작성자가 <strong>개인(부서명)</strong>이에요! 부서명 그대로 써요.</div>
+    </div>
+    <div class="hl hl-red">
+      <p>⚠️ 원문은 숨겨져 있어요! 원문의 문장을 그대로 쓰지 말고 <strong>내 말로 바꿔써봐요</strong> ✍️</p>
+    </div>
+    <div class="write-area">
+      <div class="write-label">❓ 비만이란 어떤 상태인가요? (정의 + 기준)</div>
+      <textarea class="write-input" id="sum2-q1" placeholder="비만은 ... 상태로, BMI가 ..." oninput="checkSummary2()"></textarea>
+    </div>
+    <div class="write-area">
+      <div class="write-label">❓ 비만의 원인은 무엇인가요?</div>
+      <textarea class="write-input" id="sum2-q2" placeholder="비만의 원인으로는 ..." oninput="checkSummary2()"></textarea>
+    </div>
+    <div class="write-area">
+      <div class="write-label">❓ 비만을 예방하려면 어떻게 해야 하나요?</div>
+      <textarea class="write-input" id="sum2-q3" placeholder="비만을 예방하기 위해서는 ..." oninput="checkSummary2()"></textarea>
+    </div>
+    <button class="btn btn-teal" onclick="checkSummary2Btn()">✅ 요약 확인하기</button>
+    <div class="fb-box" id="sum2-fb"></div>
+  </div>
+  <div class="card" id="apa-section-2" style="display:none;">
+    <div class="card-title">📌 APA 출처 작성하기 ②</div>
+    <div class="hl hl-indigo"><p>💡 이번엔 부서명이 작성자예요! 부서명 그대로 써도 돼요.</p></div>
+    <div style="background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:14px;border:1.5px solid #e2e8f0;">
+      <p style="font-size:.85em;color:#64748b;font-weight:bold;margin-bottom:8px;">📋 원문 ② 정보 (참고용)</p>
+      <div style="font-size:.85em;line-height:2;color:#475569;">
+        📄 글 제목: <strong>비만이란?</strong><br>
+        👤 작성자: <strong>서울대학교병원 가정의학과</strong><br>
+        📅 작성일: <strong>2023.06.20</strong><br>
+        🌐 사이트: <strong>서울대학교병원 건강정보</strong><br>
+        🔗 URL: <strong>https://www.snuh.org/health/nMedInfo/nView.do</strong>
+      </div>
+    </div>
+    <div class="apa-input-wrap">
+      <div class="apa-input-label">각 항목을 채워 APA 형식을 완성해봐요! (이번엔 힌트 없이 도전!)</div>
+      <div class="apa-field-row">
+        <div class="apa-field"><label>👤 작성자</label><input type="text" id="apa2-author" placeholder="부서명을 그대로 써봐요" oninput="updateApaPreview2()"></div>
+        <div class="apa-field"><label>📅 연도</label><input type="text" id="apa2-year" placeholder="2023" maxlength="4" oninput="updateApaPreview2()"></div>
+      </div>
+      <div class="apa-field-row">
+        <div class="apa-field"><label>📄 글 제목</label><input type="text" id="apa2-title" placeholder="글 제목" oninput="updateApaPreview2()"></div>
+        <div class="apa-field"><label>🌐 사이트 이름</label><input type="text" id="apa2-site" placeholder="사이트 이름" oninput="updateApaPreview2()"></div>
+      </div>
+      <div class="apa-field-row">
+        <div class="apa-field" style="flex:2;"><label>🔗 URL</label><input type="text" id="apa2-url" placeholder="https://..." oninput="updateApaPreview2()"></div>
+      </div>
+      <div class="apa-preview-box">
+        <div class="apa-preview-label">📌 완성된 APA 출처 미리보기</div>
+        <div class="apa-preview-text" id="apa2-preview">항목을 입력하면 여기에 APA 형식이 나타나요...</div>
+      </div>
+    </div>
+    <button class="btn btn-green" onclick="checkApa2()">✅ APA 출처 확인하기</button>
+    <div class="fb-box" id="apa2-fb"></div>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 요약 + 출처 작성을 모두 해야 넘어갈 수 있어요!</div>
+    <div class="task-item" id="task-5-summary"><div class="task-check">1</div> ✍️ 내 말로 요약 완료</div>
+    <div class="task-item" id="task-5-apa"><div class="task-check">2</div> 📌 APA 출처 작성 완료</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-5" onclick="tryComplete(5)">② 완료! 스스로 점검하러 →</button>
+  </div>
+</div>
+
+<!-- ══ 6. 스스로 점검 ══ -->
+<div class="section" id="tab-6">
+  <div class="card">
+    <div class="card-title">🔎 스스로 점검하기</div>
+    <div class="hl hl-teal">
+      <p>💡 내가 쓴 요약과 APA 출처를 다시 읽으며 스스로 점검해봐요!<br>
+      체크리스트를 하나씩 확인하고, 부족한 부분이 있으면 수정해봐요 ✍️</p>
+    </div>
+
+    <!-- 내가 쓴 내용 다시 보기 -->
+    <div class="card" style="background:#f8fafc;border:1.5px dashed #99f6e4;margin-bottom:0;">
+      <div class="card-title" style="font-size:1em;">📋 내가 쓴 내용 다시 보기</div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:.85em;color:var(--teal-dark);font-weight:bold;margin-bottom:6px;">① 당뇨병 요약</div>
+        <div class="review-box" id="review-sum1-display">(아직 작성하지 않았어요)</div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:.85em;color:var(--teal-dark);font-weight:bold;margin-bottom:6px;">② 비만 요약</div>
+        <div class="review-box" id="review-sum2-display">(아직 작성하지 않았어요)</div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <div style="font-size:.85em;color:var(--teal-dark);font-weight:bold;margin-bottom:6px;">📌 APA 출처 ① (당뇨병)</div>
+        <div class="review-apa-box" id="review-apa1-display">(아직 작성하지 않았어요)</div>
+      </div>
+
+      <div>
+        <div style="font-size:.85em;color:var(--teal-dark);font-weight:bold;margin-bottom:6px;">📌 APA 출처 ② (비만)</div>
+        <div class="review-apa-box" id="review-apa2-display">(아직 작성하지 않았어요)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 자기 점검 체크리스트 -->
+  <div class="card">
+    <div class="card-title">✅ 자기 점검 체크리스트</div>
+    <div class="hl hl-indigo">
+      <p>💡 각 항목을 읽고 내 요약과 APA를 비교하며 ✅ 또는 ❌ 를 눌러봐요!</p>
+    </div>
+
+    <div class="self-check-grid">
+
+      <div class="self-section-label">📝 요약하기 점검</div>
+
+      <div class="self-check-item" id="self-1">
+        <div class="self-check-icon">🔄</div>
+        <div class="self-check-text">원문의 문장을 그대로 옮기지 않고 <strong>내 말로 바꿔</strong> 썼다</div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(1,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(1,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+      <div class="self-check-item" id="self-2">
+        <div class="self-check-icon">🔍</div>
+        <div class="self-check-text">질병의 <strong>정의(원인 포함)</strong>가 요약에 포함되어 있다</div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(2,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(2,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+      <div class="self-check-item" id="self-3">
+        <div class="self-check-icon">🩺</div>
+        <div class="self-check-text">질병의 <strong>증상 또는 특징</strong>이 요약에 포함되어 있다</div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(3,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(3,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+      <div class="self-check-item" id="self-4">
+        <div class="self-check-icon">💊</div>
+        <div class="self-check-text"><strong>예방법이나 관리 방법</strong>이 요약에 포함되어 있다</div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(4,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(4,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+      <div class="self-section-label">📌 APA 출처 점검</div>
+
+      <div class="self-check-item" id="self-5">
+        <div class="self-check-icon">👤</div>
+        <div class="self-check-text">APA에 <strong>작성자</strong> 이름이 있고 뒤에 마침표(.)가 있다</div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(5,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(5,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+      <div class="self-check-item" id="self-6">
+        <div class="self-check-icon">📅</div>
+        <div class="self-check-text">연도가 <strong>소괄호 ( ) 안</strong>에 있고 뒤에 마침표가 있다 → <code style="background:#1e293b;color:#5eead4;padding:1px 6px;border-radius:4px;">(2023).</code></div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(6,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(6,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+      <div class="self-check-item" id="self-7">
+        <div class="self-check-icon">📄</div>
+        <div class="self-check-text"><strong>글 제목</strong>이 있고 뒤에 마침표(.)가 있다</div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(7,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(7,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+      <div class="self-check-item" id="self-8">
+        <div class="self-check-icon">🔗</div>
+        <div class="self-check-text"><strong>사이트 이름과 URL</strong>이 모두 포함되어 있다</div>
+        <div class="self-check-btns">
+          <button class="self-btn yes" onclick="setSelfCheck(8,true)">✅ 예</button>
+          <button class="self-btn no"  onclick="setSelfCheck(8,false)">❌ 아니오</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-teal" onclick="completeSelfCheck()">🔎 점검 결과 확인하기</button>
+    </div>
+    <div class="fb-box" id="self-check-fb"></div>
+  </div>
+
+  <!-- 수정하기 -->
+  <div class="card" id="self-revise-card" style="display:none;">
+    <div class="card-title">✏️ 스스로 수정하기</div>
+    <div class="fb-box show warn" id="self-revise-guide" style="margin-bottom:14px;"></div>
+    <div class="write-area">
+      <div class="write-label">🔄 ❌ 항목이 있다면 수정해봐요! <span style="font-size:.82em;color:var(--muted);">(수정할 내용이 없으면 "수정 없음"이라고 써요)</span></div>
+      <textarea class="write-input" id="self-revise-text"
+        placeholder="예) 당뇨병 요약에 예방법을 추가합니다: 규칙적인 운동과 균형 잡힌 식사가 중요합니다."
+        style="min-height:100px;" oninput="checkSelfRevise()"></textarea>
+    </div>
+    <div style="margin-top:14px;">
+      <div class="write-label">💭 오늘 요약하고 APA를 쓰면서 어려웠던 점은 무엇인가요?</div>
+      <textarea class="write-input" id="self-reflection"
+        placeholder="예) APA에서 연도를 소괄호 안에 쓰는 것이 헷갈렸어요..."
+        style="min-height:70px;" oninput="checkSelfRevise()"></textarea>
+    </div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-green" onclick="completeSelfRevise()">✅ 수정 및 성찰 완료!</button>
+    </div>
+    <div class="fb-box" id="self-revise-fb"></div>
+  </div>
+
+  <div class="task-status">
+    <div class="task-status-title">📋 점검 + 수정까지 완료해야 넘어갈 수 있어요!</div>
+    <div class="task-item" id="task-6-self"><div class="task-check">1</div> 🔎 자기 점검 체크리스트 완료</div>
+    <div class="task-item" id="task-6-revise"><div class="task-check">2</div> ✏️ 수정 및 성찰 완료</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-6" onclick="tryComplete(6)">점검 완료! 확인문제 →</button>
+  </div>
+</div>
+
+<!-- ══ 7. 확인 문제 ══ -->
+<div class="section" id="tab-7">
+  <div class="card">
+    <div class="card-title">✏️ 확인 문제 — APA & 요약 마스터!</div>
+    <div class="hl hl-teal"><p>💡 오늘 배운 APA 형식과 요약하기에 대한 문제예요!</p></div>
+    <div id="quizArea7"></div>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 확인 문제를 모두 풀어야 넘어갈 수 있어요!</div>
+    <div class="task-item" id="task-7-quiz"><div class="task-check">📝</div> 확인 문제 모두 풀기</div>
+  </div>
+  <div class="complete-btn-wrap">
+    <button class="complete-btn btn-locked" id="complete-btn-7" onclick="tryComplete(7)">문제 완료! 마무리하기 →</button>
+  </div>
+</div>
+
+<!-- ══ 8. 마무리 ══ -->
+<div class="section" id="tab-8">
+  <div class="card">
+    <div class="card-title">🎯 오늘의 학습 정리</div>
+    <div class="hl hl-teal">
+      <p>📌 <strong>내 말로 요약하기의 핵심</strong></p>
+      <p>✅ 원문을 읽고 덮은 뒤 기억나는 내용을 써요</p>
+      <p>✅ 원문의 문장 구조를 바꿔요</p>
+      <p>✅ 핵심 내용(정의, 원인, 증상, 예방)을 포함해요</p>
+    </div>
+    <div class="hl hl-indigo">
+      <p>📌 <strong>APA 형식 요약</strong></p>
+      <p>✅ <strong>작성자.</strong> (연도). 글 제목. 사이트 이름. URL</p>
+      <p>✅ 작성자 없음 → 사이트명 사용</p>
+      <p>✅ 날짜 없음 → (n.d.)</p>
+      <p>✅ 작성자·연도·제목 뒤에는 마침표(.)</p>
+    </div>
+    <div class="hl hl-red">
+      <p>⚠️ <strong>표절 주의!</strong><br>
+      출처를 밝히지 않고 남의 글을 그대로 쓰는 것은 표절이에요.<br>
+      항상 <strong>내 말로 요약 + 출처 표기</strong>를 함께 해요!</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🏆 최종 도전 — 스스로 APA 작성하기!</div>
+    <div class="hl hl-teal"><p>💡 아래 정보를 보고 완전히 혼자서 APA 출처를 작성해봐요! (안내 카드 없이 도전!)</p></div>
+    <div style="background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:14px;border:1.5px dashed #e2e8f0;">
+      <p style="font-size:.85em;color:#64748b;font-weight:bold;margin-bottom:8px;">📋 다음 정보로 APA 출처를 만들어봐요:</p>
+      <div style="font-size:.88em;line-height:2;color:#475569;">
+        📄 글 제목: <strong>고혈압 예방과 관리</strong><br>
+        👤 작성자: <strong>대한고혈압학회</strong><br>
+        📅 연도: <strong>2022</strong><br>
+        🌐 사이트: <strong>대한고혈압학회 공식 홈페이지</strong><br>
+        🔗 URL: <strong>https://www.koreanhypertension.org</strong>
+      </div>
+    </div>
+    <textarea class="write-input" id="final-apa" placeholder="APA 형식으로 써봐요..." oninput="checkFinalApa()" style="min-height:70px;"></textarea>
+    <button class="btn btn-teal" onclick="checkFinalApaBtn()" style="margin-top:8px;">✅ 확인하기</button>
+    <div class="fb-box" id="final-apa-fb"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">💭 오늘의 다짐</div>
+    <p style="font-size:.9em;color:var(--muted);margin-bottom:12px;">자료조사를 할 때 앞으로 어떻게 달라질 것 같나요?</p>
+    <textarea class="write-input" id="final-reflection" placeholder="앞으로 자료를 찾을 때 나는..." oninput="checkFinal()" style="min-height:100px;"></textarea>
+    <button class="btn btn-teal" style="margin-top:10px;" onclick="saveFinal()">💾 저장하기</button>
+    <div id="final-done" style="display:none;" class="hl hl-green">
+      <p>🎉 2단계 학습 완료! 아래 제출 버튼을 눌러주세요 🌸</p>
+    </div>
+  </div>
+  <div class="task-status">
+    <div class="task-status-title">📋 최종 도전 + 다짐을 써야 완료돼요!</div>
+    <div class="task-item" id="task-8-finalapa"><div class="task-check">🏆</div> 최종 APA 도전 완료</div>
+    <div class="task-item" id="task-8-final"><div class="task-check">💭</div> 오늘의 다짐 저장</div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="congrats-overlay" id="congratsOverlay">
+  <div class="congrats-box">
+    <div style="font-size:4em;margin-bottom:12px;" id="congratsEmoji">🎉</div>
+    <h2 id="congratsTitle">완료!</h2>
+    <p id="congratsMsg">수고했어요!</p>
+    <button class="btn btn-teal" onclick="closeCongratsAndNext()">다음으로 가기 →</button>
+    <button class="btn btn-ghost" style="margin-top:6px;display:block;width:100%;" onclick="document.getElementById('congratsOverlay').classList.remove('show')">계속 복습하기</button>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>📝 정보 리터러시 학습 2단계 | APA 출처 작성 익히기</p>
+  <div class="made-by">✍️ Made by 소연티쳐 ✍️</div>
+</footer>
+
+<div class="submit-card">
+  <div class="submit-inner">
+    <div class="card-title">📤 선생님께 결과 제출하기</div>
+    <div class="submit-info-box">
+      👤 이름: <strong id="res-name" style="color:var(--teal-dark);">-</strong> &nbsp;|&nbsp;
+      🏫 반/번호: <strong id="res-class" style="color:var(--teal-dark);">-</strong><br>
+      📌 APA 연습 완료: <strong id="res-apa" style="color:var(--teal-dark);">미완료</strong><br>
+      ✍️ 요약 완료: <strong id="res-summary" style="color:var(--teal-dark);">미완료</strong><br>
+      📝 확인문제 점수: <strong id="res-score" style="color:var(--teal-dark);">미완료</strong>
+    </div>
+    <button class="submit-btn-main" id="submitBtn" onclick="submitResult()">📤 선생님께 결과 제출하기</button>
+    <div class="submit-done-box" id="submitDone">
+      <div style="font-size:2.5rem;margin-bottom:8px;">✅</div>
+      <div style="font-size:1.1em;color:#059669;font-weight:bold;">제출 완료!</div>
+      <div style="font-size:.9em;color:var(--muted);margin-top:4px;">선생님께 결과가 전달되었어요 🌸</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /mainApp -->
+
+<script>
+/* ══ 전역 변수 ══ */
+var _student={cls:'',num:'',name:''};
+var _startTime=null;
+var _quizScore='미완료';
+var _apaStatus='미완료';
+var _summaryStatus='미완료';
+var selfChecks={};  // 짝 피드백 → 자기 점검으로 변경
+
+/* ══ 로그인 ══ */
+function doLogin(){
+  var cls=document.getElementById('inp-class').value.trim();
+  var num=document.getElementById('inp-num').value.trim();
+  var name=document.getElementById('inp-name').value.trim();
+  var err=document.getElementById('loginErr');
+  if(!cls||!num||!name){
+    err.style.display='block';
+    if(!cls) document.getElementById('inp-class').classList.add('err');
+    if(!num) document.getElementById('inp-num').classList.add('err');
+    if(!name) document.getElementById('inp-name').classList.add('err');
+    return;
+  }
+  err.style.display='none';
+  _student={cls,num,name};
+  _startTime=new Date();
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  var badge=document.getElementById('studentBadge');
+  badge.textContent='👤 '+cls+'반 '+num+'번 '+name;
+  badge.style.display='inline-block';
+  document.getElementById('res-name').textContent=name;
+  document.getElementById('res-class').textContent=cls+'반 '+num+'번';
+  initQuiz7();
+}
+
+function _calcTime(){
+  if(!_startTime) return '-';
+  var diff=Math.floor((new Date()-_startTime)/1000);
+  return Math.floor(diff/60)+'분 '+(diff%60)+'초';
+}
+
+function submitResult(){
+  var sum1=document.getElementById('sum1-q1').value.trim().slice(0,80);
+  var apa1=document.getElementById('apa1-preview').textContent.slice(0,150);
+  var sum2=document.getElementById('sum2-q1').value.trim().slice(0,80);
+  var apa2=document.getElementById('apa2-preview').textContent.slice(0,150);
+  var reflection=document.getElementById('final-reflection').value.trim().slice(0,150);
+  var selfNote=(document.getElementById('self-revise-text')?document.getElementById('self-revise-text').value.trim().slice(0,100):'');
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='⏳ 제출 중...';
+  var FORM_URL='https://docs.google.com/forms/u/0/d/e/1FAIpQLScvH5vdxkXyuc6GUx6JjIwsxMZqVbPzi43Y3KzLhveHJXR-ww/formResponse';
+  var ENTRIES={
+    cls:'entry.592236459', num:'entry.582881831', name:'entry.146385857',
+    apa:'entry.1069538737', sum:'entry.1952263604', score:'entry.2115279314',
+    sum1:'entry.1810657031', apa1:'entry.259067305',
+    sum2:'entry.145485050', apa2:'entry.250189280',
+    reflection:'entry.1077100298', time:'entry.1181241034'
+  };
+  var body=
+    encodeURIComponent(ENTRIES.cls)+'='+encodeURIComponent(_student.cls)+'&'+
+    encodeURIComponent(ENTRIES.num)+'='+encodeURIComponent(_student.num)+'&'+
+    encodeURIComponent(ENTRIES.name)+'='+encodeURIComponent(_student.name)+'&'+
+    encodeURIComponent(ENTRIES.apa)+'='+encodeURIComponent(_apaStatus)+'&'+
+    encodeURIComponent(ENTRIES.sum)+'='+encodeURIComponent(_summaryStatus)+'&'+
+    encodeURIComponent(ENTRIES.score)+'='+encodeURIComponent(_quizScore)+'&'+
+    encodeURIComponent(ENTRIES.sum1)+'='+encodeURIComponent(sum1)+'&'+
+    encodeURIComponent(ENTRIES.apa1)+'='+encodeURIComponent(apa1)+'&'+
+    encodeURIComponent(ENTRIES.sum2)+'='+encodeURIComponent(sum2)+'&'+
+    encodeURIComponent(ENTRIES.apa2)+'='+encodeURIComponent(apa2)+'&'+
+    encodeURIComponent(ENTRIES.reflection)+'='+encodeURIComponent(reflection)+'&'+
+    encodeURIComponent(ENTRIES.time)+'='+encodeURIComponent(_calcTime());
+  fetch(FORM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body})
+    .then(()=>_showSubmitDone()).catch(()=>_showSubmitDone());
+}
+function _showSubmitDone(){
+  document.getElementById('submitBtn').style.display='none';
+  document.getElementById('submitDone').style.display='block';
+}
+
+/* ══ 챕터 관리 ══ */
+const TOTAL=9;
+let unlockedUpTo=0, currentChapter=0, nextAfterCongrats=1;
+const CHAPTER_TASKS={
+  0:['think'],
+  1:['practice','checklist'],
+  2:['read1'],
+  3:['summary','apa'],
+  4:['read2'],
+  5:['summary','apa'],
+  6:['self','revise'],   // ← 변경: peer,revise → self,revise
+  7:['quiz'],
+  8:['finalapa','final']
+};
+const completedTasks={};
+for(let i=0;i<TOTAL;i++) completedTasks[i]=new Set();
+
+function markTask(chIdx,key){
+  completedTasks[chIdx].add(key);
+  const el=document.getElementById('task-'+chIdx+'-'+key);
+  if(el) el.classList.add('done');
+  checkAllTasks(chIdx);
+}
+function checkAllTasks(idx){
+  const req=CHAPTER_TASKS[idx]; if(!req) return;
+  const allDone=req.every(t=>completedTasks[idx].has(t));
+  const btn=document.getElementById('complete-btn-'+idx);
+  if(btn) btn.classList.toggle('btn-locked',!allDone);
+}
+function tryComplete(idx){
+  const req=CHAPTER_TASKS[idx];
+  const allDone=req?req.every(t=>completedTasks[idx].has(t)):true;
+  if(!allDone){showToast('🔒 아직 완료하지 않은 항목이 있어요!'); return;}
+  completeChapter(idx);
+}
+function completeChapter(idx){
+  if(idx>=unlockedUpTo){unlockedUpTo=idx+1; unlockBtn(idx+1);}
+  nextAfterCongrats=idx+1;
+  if(idx+1<TOTAL) showCongrats(idx);
+  else showFinalCongrats();
+  updateProg();
+}
+function goChapter(idx){
+  if(idx>unlockedUpTo){showToast('🔒 이전 챕터를 먼저 완료해주세요!'); return;}
+  currentChapter=idx;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ch-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+idx).classList.add('active');
+  document.getElementById('ch-btn-'+idx).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateProg();
+  // 챕터 6 진입 시 내가 쓴 내용 자동 로드
+  if(idx===6) loadSelfReview();
+  if(idx===7) initQuiz7();
+}
+function unlockBtn(idx){
+  if(idx>=TOTAL) return;
+  const btn=document.getElementById('ch-btn-'+idx); if(!btn) return;
+  btn.classList.remove('locked');
+  btn.textContent=btn.textContent.replace('🔒 ','');
+}
+const cMsgs=[
+  ['✍️','시작 완료!','APA 형식을 배워봐요 📌'],
+  ['📌','APA 배우기 완료!','원문 ①을 읽어봐요 📖'],
+  ['📖','원문 ① 읽기 완료!','이제 내 말로 요약해봐요 ✍️'],
+  ['✍️','요약 ① 완료!','원문 ②를 읽어봐요 📖'],
+  ['📖','원문 ② 읽기 완료!','이제 내 말로 요약해봐요 ✍️'],
+  ['✍️','요약 ② 완료!','스스로 점검해봐요 🔎'],
+  ['🔎','스스로 점검 완료!','확인 문제에 도전해봐요 ✏️'],
+  ['✏️','확인 문제 완료!','마무리해봐요 🎯'],
+];
+function showCongrats(idx){
+  const m=cMsgs[idx]||['🎉','완료!','수고했어요!'];
+  document.getElementById('congratsEmoji').textContent=m[0];
+  document.getElementById('congratsTitle').textContent=m[1];
+  document.getElementById('congratsMsg').textContent=m[2];
+  document.getElementById('congratsOverlay').classList.add('show');
+}
+function showFinalCongrats(){
+  document.getElementById('congratsEmoji').textContent='🏆';
+  document.getElementById('congratsTitle').textContent='2단계 완료!';
+  document.getElementById('congratsMsg').textContent='APA & 요약하기 마스터! ✍️✨ 제출 버튼을 눌러주세요!';
+  document.getElementById('congratsOverlay').classList.add('show');
+}
+function closeCongratsAndNext(){
+  document.getElementById('congratsOverlay').classList.remove('show');
+  if(nextAfterCongrats<TOTAL) goChapter(nextAfterCongrats);
+}
+function updateProg(){
+  const pct=Math.round((unlockedUpTo/TOTAL)*100);
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+}
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('lockToast');
+  t.textContent=msg; t.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function toggleEl(id){
+  const e=document.getElementById(id);
+  e.style.display=e.style.display==='none'?'block':'none';
+}
+
+/* ══ 읽기 체크 ══ */
+function toggleCheck(el, id){
+  const span=document.getElementById(id);
+  if(span.textContent==='☐'){ span.textContent='✅'; el.style.color='#059669'; }
+  else { span.textContent='☐'; el.style.color=''; }
+}
+
+/* ══ APA 연습 ══ */
+function checkApaPracticeBtn(){
+  const v=document.getElementById('apa-practice-input').value.trim();
+  const fb=document.getElementById('apa-practice-fb');
+  const required=['서울대학교병원','2023','비만이란','snuh'];
+  const found=required.filter(r=>v.includes(r));
+  if(found.length===4){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 완벽해요! APA 형식을 잘 이해했어요!<br><small>작성자, 연도, 제목, URL이 모두 포함됐어요 ✅</small>';
+    markTask(1,'practice');
+    _apaStatus='연습 완료';
+    document.getElementById('res-apa').textContent=_apaStatus;
+  } else if(found.length>=2){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 빠진 항목: '+required.filter(r=>!v.includes(r)).join(', ')+'<br><small>APA 형식: 작성자. (연도). 제목. 사이트. URL</small>';
+  } else {
+    fb.className='fb-box show bad';
+    fb.innerHTML='❌ APA 형식을 다시 확인해봐요!<br><small>형식: 서울대학교병원. (2023). 비만이란?. 서울대병원 건강정보. https://www.snuh.org/...</small>';
+  }
+}
+function showApaAnswer(){
+  const fb=document.getElementById('apa-practice-fb');
+  fb.className='fb-box show info';
+  fb.innerHTML='💡 <strong>정답 예시:</strong><br><code style="font-family:Courier New;font-size:.88em;color:#1d4ed8;">서울대학교병원. (2023). 비만이란?. 서울대학교병원 건강정보. https://www.snuh.org/...</code><br><br>내 답과 비교해봐요! 형식이 맞으면 ✅ 버튼을 눌러도 돼요.';
+  markTask(1,'practice');
+}
+
+/* ══ APA 미리보기 ══ */
+function _buildApaText(author,year,title,site,url){
+  let a=author||'작성자';
+  let y=year?'('+year+')':'(연도)';
+  let t=title||'글 제목';
+  let s=site||'사이트 이름';
+  let u=url||'URL';
+  return a+'. '+y+'. '+t+'. '+s+'. '+u;
+}
+function updateApaPreview1(){
+  const a=document.getElementById('apa1-author').value.trim();
+  const y=document.getElementById('apa1-year').value.trim();
+  const t=document.getElementById('apa1-title').value.trim();
+  const s=document.getElementById('apa1-site').value.trim();
+  const u=document.getElementById('apa1-url').value.trim();
+  document.getElementById('apa1-preview').textContent=_buildApaText(a,y,t,s,u);
+}
+function updateApaPreview2(){
+  const a=document.getElementById('apa2-author').value.trim();
+  const y=document.getElementById('apa2-year').value.trim();
+  const t=document.getElementById('apa2-title').value.trim();
+  const s=document.getElementById('apa2-site').value.trim();
+  const u=document.getElementById('apa2-url').value.trim();
+  document.getElementById('apa2-preview').textContent=_buildApaText(a,y,t,s,u);
+}
+
+/* ══ APA 확인 ══ */
+function checkApa1(){
+  const a=document.getElementById('apa1-author').value.trim();
+  const y=document.getElementById('apa1-year').value.trim();
+  const t=document.getElementById('apa1-title').value.trim();
+  const s=document.getElementById('apa1-site').value.trim();
+  const u=document.getElementById('apa1-url').value.trim();
+  const fb=document.getElementById('apa1-fb');
+  let errors=[];
+  if(!a||!a.includes('질병관리청')) errors.push('작성자(질병관리청)');
+  if(y!=='2023') errors.push('연도(2023)');
+  if(!t.includes('당뇨')) errors.push('글 제목(당뇨병이란?)');
+  if(!s.includes('건강정보')&&!s.includes('포털')) errors.push('사이트 이름');
+  if(!u.includes('http')) errors.push('URL');
+  if(errors.length===0){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 완벽해요! APA 출처를 정확하게 작성했어요!';
+    markTask(3,'apa');
+    _apaStatus='①② 완료';
+    document.getElementById('res-apa').textContent=_apaStatus;
+  } else if(errors.length<=2){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 확인해볼 항목: <strong>'+errors.join(', ')+'</strong>';
+  } else {
+    fb.className='fb-box show bad';
+    fb.innerHTML='❌ 다음 항목을 다시 확인해봐요: <strong>'+errors.join(', ')+'</strong><br><small>형식: 질병관리청. (2023). 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr/...</small>';
+  }
+}
+function checkApa2(){
+  const a=document.getElementById('apa2-author').value.trim();
+  const y=document.getElementById('apa2-year').value.trim();
+  const t=document.getElementById('apa2-title').value.trim();
+  const s=document.getElementById('apa2-site').value.trim();
+  const u=document.getElementById('apa2-url').value.trim();
+  const fb=document.getElementById('apa2-fb');
+  let errors=[];
+  if(!a||a.length<3) errors.push('작성자(서울대학교병원 가정의학과)');
+  if(y!=='2023') errors.push('연도(2023)');
+  if(!t.includes('비만')) errors.push('글 제목(비만이란?)');
+  if(!s||s.length<3) errors.push('사이트 이름');
+  if(!u.includes('http')) errors.push('URL');
+  if(errors.length===0){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 완벽해요! 이번엔 힌트 없이 완성했어요! 🏆';
+    markTask(5,'apa');
+    _summaryStatus='①② 완료';
+    document.getElementById('res-summary').textContent=_summaryStatus;
+  } else if(errors.length<=2){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 확인해볼 항목: <strong>'+errors.join(', ')+'</strong>';
+  } else {
+    fb.className='fb-box show bad';
+    fb.innerHTML='❌ 다음 항목을 다시 확인해봐요: <strong>'+errors.join(', ')+'</strong>';
+  }
+}
+
+/* ══ 요약 확인 ══ */
+function checkSummary1(){}
+function checkSummary1Btn(){
+  const q1=document.getElementById('sum1-q1').value.trim();
+  const q2=document.getElementById('sum1-q2').value.trim();
+  const q3=document.getElementById('sum1-q3').value.trim();
+  const fb=document.getElementById('sum1-fb');
+  const originalPhrases=['인슐린의 분비 또는 기능에 문제가 생겨','혈액 속 포도당 농도가 높아지는','극심한 갈증, 잦은 소변, 체중 감소, 피로감'];
+  const isCopied=originalPhrases.some(p=>q1.includes(p)||q2.includes(p)||q3.includes(p));
+  if(isCopied){
+    fb.className='fb-box show bad';
+    fb.innerHTML='⚠️ 원문의 문장이 그대로 포함된 것 같아요!<br>원문을 덮고 기억나는 내용을 <strong>내 말로</strong> 다시 써봐요.<br><small>예) "당뇨병은 혈당이 정상보다 높아지는 병이에요." 처럼 쉬운 말로 바꿔보세요!</small>';
+    return;
+  }
+  const allFilled=q1.length>=10&&q2.length>=10&&q3.length>=10;
+  if(allFilled){
+    fb.className='fb-box show good';
+    fb.innerHTML='✅ 잘 썼어요! 이제 APA 출처를 작성해봐요 📌';
+    markTask(3,'summary');
+    document.getElementById('apa-section-1').style.display='block';
+    document.getElementById('apa-section-1').scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 각 질문에 조금 더 자세히 써봐요! (10글자 이상)';
+  }
+}
+function checkSummary2(){}
+function checkSummary2Btn(){
+  const q1=document.getElementById('sum2-q1').value.trim();
+  const q2=document.getElementById('sum2-q2').value.trim();
+  const q3=document.getElementById('sum2-q3').value.trim();
+  const fb=document.getElementById('sum2-fb');
+  const originalPhrases=['체내에 지방이 과도하게 축적된','체질량지수(BMI)가 25 이상','과식, 운동 부족, 유전적 요인, 스트레스, 수면 부족'];
+  const isCopied=originalPhrases.some(p=>q1.includes(p)||q2.includes(p)||q3.includes(p));
+  if(isCopied){
+    fb.className='fb-box show bad';
+    fb.innerHTML='⚠️ 원문 문장이 포함된 것 같아요! 내 말로 다시 써봐요 ✍️';
+    return;
+  }
+  const allFilled=q1.length>=10&&q2.length>=10&&q3.length>=10;
+  if(allFilled){
+    fb.className='fb-box show good';
+    fb.innerHTML='✅ 훌륭해요! 이제 APA 출처를 작성해봐요 📌';
+    markTask(5,'summary');
+    document.getElementById('apa-section-2').style.display='block';
+    document.getElementById('apa-section-2').scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 각 질문에 조금 더 자세히 써봐요!';
+  }
+}
+
+/* ══ 스스로 점검 (챕터 6) ══ */
+function loadSelfReview(){
+  // 요약 내용 불러오기
+  var s1=[
+    document.getElementById('sum1-q1').value.trim(),
+    document.getElementById('sum1-q2').value.trim(),
+    document.getElementById('sum1-q3').value.trim()
+  ].filter(Boolean).join('\n');
+  var s2=[
+    document.getElementById('sum2-q1').value.trim(),
+    document.getElementById('sum2-q2').value.trim(),
+    document.getElementById('sum2-q3').value.trim()
+  ].filter(Boolean).join('\n');
+  var d1=document.getElementById('review-sum1-display');
+  var d2=document.getElementById('review-sum2-display');
+  if(d1) d1.textContent=s1||'(아직 작성하지 않았어요)';
+  if(d2) d2.textContent=s2||'(아직 작성하지 않았어요)';
+  // APA 내용 불러오기
+  var a1=document.getElementById('apa1-preview');
+  var a2=document.getElementById('apa2-preview');
+  var ra1=document.getElementById('review-apa1-display');
+  var ra2=document.getElementById('review-apa2-display');
+  if(ra1&&a1) ra1.textContent=
+    (a1.textContent==='항목을 입력하면 여기에 APA 형식이 나타나요...')?'(아직 작성하지 않았어요)':a1.textContent;
+  if(ra2&&a2) ra2.textContent=
+    (a2.textContent==='항목을 입력하면 여기에 APA 형식이 나타나요...')?'(아직 작성하지 않았어요)':a2.textContent;
+}
+
+function setSelfCheck(num, isOk){
+  selfChecks[num]=isOk;
+  var item=document.getElementById('self-'+num);
+  item.className='self-check-item '+(isOk?'checked-ok':'checked-bad');
+  var btns=item.querySelectorAll('.self-btn');
+  btns[0].classList.toggle('selected',isOk);
+  btns[1].classList.toggle('selected',!isOk);
+}
+
+function completeSelfCheck(){
+  var checkedCount=Object.keys(selfChecks).length;
+  var fb=document.getElementById('self-check-fb');
+  if(checkedCount<8){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 8개 항목을 모두 체크해봐요! (현재 '+checkedCount+'/8)';
+    return;
+  }
+  var badItems=Object.entries(selfChecks).filter(function(e){return !e[1];}).map(function(e){return Number(e[0]);});
+  var badCount=badItems.length;
+  if(badCount===0){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 모든 항목 ✅! 정말 잘 썼어요!<br>아래에서 어려웠던 점을 간단히 써봐요 😊';
+  } else {
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 '+badCount+'개 항목이 ❌예요.<br>아래에서 해당 부분을 수정해봐요! 수정하면 더 좋은 글이 돼요 ✍️';
+  }
+  // 수정 안내 메시지
+  var guides={
+    1:'🔄 요약에서 원문 문장을 찾아 내 말로 바꿔써봐요.',
+    2:'🔍 질병의 정의(원인)를 요약에 추가해봐요.',
+    3:'🩺 증상이나 특징을 요약에 추가해봐요.',
+    4:'💊 예방법이나 관리 방법을 요약에 추가해봐요.',
+    5:'👤 APA에 작성자 이름과 마침표(.)를 추가해봐요.',
+    6:'📅 연도를 소괄호 안에 써봐요: (2023).',
+    7:'📄 글 제목과 마침표(.)를 추가해봐요.',
+    8:'🔗 사이트 이름과 URL을 추가해봐요.'
+  };
+  var guideEl=document.getElementById('self-revise-guide');
+  if(guideEl){
+    if(badCount>0){
+      var guideHtml='<strong>📋 수정이 필요한 항목:</strong><br>';
+      badItems.forEach(function(n){ guideHtml+=guides[n]+'<br>'; });
+      guideEl.innerHTML=guideHtml;
+      guideEl.className='fb-box show warn';
+    } else {
+      guideEl.innerHTML='✅ 모든 항목이 완료됐어요! 아래에 어려웠던 점이나 느낀 점을 자유롭게 써봐요.';
+      guideEl.className='fb-box show good';
+    }
+  }
+  markTask(6,'self');
+  document.getElementById('self-revise-card').style.display='block';
+  document.getElementById('self-revise-card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function checkSelfRevise(){
+  var revise=document.getElementById('self-revise-text').value.trim();
+  var reflect=document.getElementById('self-reflection').value.trim();
+  if(revise.length>=5&&reflect.length>=5) markTask(6,'revise');
+}
+
+function completeSelfRevise(){
+  var revise=document.getElementById('self-revise-text').value.trim();
+  var reflect=document.getElementById('self-reflection').value.trim();
+  var fb=document.getElementById('self-revise-fb');
+  if(revise.length<5){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 수정 내용을 써봐요! 수정할 게 없으면 "수정 없음"이라고 써도 돼요.';
+    return;
+  }
+  if(reflect.length<5){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 어려웠던 점도 짧게 써봐요!';
+    return;
+  }
+  fb.className='fb-box show good';
+  fb.innerHTML='🎉 스스로 점검 완료! 자기 확인 능력이 늘었어요 🌟';
+  markTask(6,'revise');
+}
+
+/* ══ 확인 문제 ══ */
+const QUESTIONS7=[
+  {q:'다음 중 APA 형식이 올바른 것은?',
+   opts:['① 질병관리청 2023 당뇨병이란? 국가건강정보포털 https://health.kdca.go.kr',
+         '② 질병관리청. (2023). 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr',
+         '③ (2023) 질병관리청. 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr',
+         '④ 질병관리청. 2023. 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr'],
+   ans:1,exp:'APA 형식: <strong>작성자. (연도). 제목. 사이트. URL</strong><br>연도는 반드시 소괄호 ( ) 안에 쓰고, 각 항목 뒤에 마침표(.)를 붙여요!'},
+  {q:'원문을 읽고 요약할 때 올바른 방법은?',
+   opts:['① 원문을 보면서 중요한 문장을 그대로 복사한다',
+         '② 원문을 덮고 기억나는 내용을 내 말로 쓴다',
+         '③ 원문에서 핵심 단어만 골라 나열한다',
+         '④ 원문 전체를 큰따옴표로 묶어 인용한다'],
+   ans:1,exp:'원문을 덮고 기억나는 내용을 <strong>내 말로</strong> 쓰는 것이 올바른 요약이에요!<br>원문 문장을 그대로 쓰면 표절이 될 수 있어요.'},
+  {q:'APA 출처에서 작성자를 찾을 수 없을 때 어떻게 해야 하나요?',
+   opts:['① 작성자 항목을 비워둔다',
+         '② "작성자 없음"이라고 쓴다',
+         '③ 사이트 이름을 작성자 자리에 쓴다',
+         '④ 출처를 쓰지 않아도 된다'],
+   ans:2,exp:'작성자를 찾을 수 없을 때는 <strong>사이트 이름</strong>을 작성자 자리에 써요!<br>날짜를 찾을 수 없을 때는 (n.d.) 라고 써요.'},
+  {q:'다음 중 APA 출처에 반드시 포함되어야 하는 항목이 아닌 것은?',
+   opts:['① 작성자','② URL(웹 주소)','③ 조회수','④ 연도'],
+   ans:2,exp:'APA 출처에 필요한 것은 <strong>작성자, 연도, 제목, 사이트명, URL</strong>이에요!<br>조회수는 APA 형식에 포함되지 않아요 🔍'},
+  {q:'출처를 표기하지 않고 다른 사람의 글을 그대로 사용하는 것을 무엇이라고 하나요?',
+   opts:['① 인용','② 표절','③ 요약','④ 참고'],
+   ans:1,exp:'<strong>표절(剽竊)</strong>은 다른 사람의 글, 아이디어를 출처 없이 자신의 것처럼 사용하는 것이에요!<br>항상 출처를 밝혀야 해요 📌'},
+];
+let curQ7=0,results7=[],answered7=false,inited7=false;
+function initQuiz7(){if(inited7)return;inited7=true;renderQuiz7();}
+function renderQuiz7(){
+  if(curQ7>=QUESTIONS7.length){showResult7();return;}
+  const q=QUESTIONS7[curQ7]; answered7=false;
+  document.getElementById('quizArea7').innerHTML=`
+    <div style="background:var(--teal-light);border-radius:16px;padding:20px;border:1.5px solid #99f6e4;margin-bottom:14px;">
+      <div style="font-size:.82em;color:var(--teal);margin-bottom:8px;">문제 ${curQ7+1} / ${QUESTIONS7.length} ✍️</div>
+      <div style="font-size:1em;line-height:1.7;margin-bottom:14px;">${q.q}</div>
+      <div id="opts7">${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerQ7(${i})">${o}</button>`).join('')}</div>
+    </div>
+    <div class="exp-box" id="exp7"><div id="exp7t" style="margin-bottom:6px;"></div><div id="exp7b" style="line-height:1.85;font-size:.93em;"></div></div>
+    <div id="next7" style="text-align:center;margin-top:12px;display:none;">
+      <button class="btn btn-teal" onclick="nextQ7()">${curQ7+1<QUESTIONS7.length?'다음 문제 →':'결과 보기 🎉'}</button>
+    </div>`;
+}
+function answerQ7(idx){
+  if(answered7)return; answered7=true;
+  const q=QUESTIONS7[curQ7],ok=idx===q.ans;
+  results7.push(ok);
+  document.querySelectorAll('#opts7 .quiz-opt').forEach((o,i)=>{
+    o.disabled=true; o.style.cursor='default';
+    if(i===q.ans) o.classList.add('right');
+    else if(i===idx&&!ok) o.classList.add('wrong');
+  });
+  const box=document.getElementById('exp7');
+  box.className='exp-box show '+(ok?'ok':'ng');
+  document.getElementById('exp7t').textContent=ok?'✅ 정답이에요! 🎉':'❌ 아쉬워요!';
+  document.getElementById('exp7b').innerHTML=q.exp;
+  document.getElementById('next7').style.display='block';
+}
+function nextQ7(){curQ7++;renderQuiz7();}
+function showResult7(){
+  const c=results7.filter(Boolean).length,t=QUESTIONS7.length;
+  const pct=Math.round(c/t*100);
+  _quizScore=c+'/'+t+' ('+pct+'%)';
+  document.getElementById('res-score').textContent=_quizScore;
+  document.getElementById('quizArea7').innerHTML=`
+    <div style="text-align:center;padding:24px 0;">
+      <div style="font-size:3em;margin-bottom:12px;">${pct===100?'🏆':pct>=80?'🌟':pct>=60?'😊':'💪'}</div>
+      <div style="font-size:1.8em;color:var(--teal-dark);margin-bottom:8px;">${c} / ${t} 정답!</div>
+      <div style="color:var(--muted);margin-bottom:18px;">${pct>=80?'APA & 요약 마스터! ✍️':'조금 더 복습해봐요! 💪'}</div>
+      <button class="btn btn-ghost" onclick="restartQ7()">🔄 다시 풀기</button>
+    </div>`;
+  markTask(7,'quiz');
+}
+function restartQ7(){curQ7=0;results7=[];answered7=false;inited7=false;initQuiz7();}
+
+/* ══ 최종 APA 도전 ══ */
+function checkFinalApa(){}
+function checkFinalApaBtn(){
+  const v=document.getElementById('final-apa').value.trim();
+  const fb=document.getElementById('final-apa-fb');
+  const required=['대한고혈압학회','2022','고혈압 예방','koreanhypertension'];
+  const found=required.filter(r=>v.includes(r));
+  const hasParenYear=/\(2022\)/.test(v);
+  if(found.length===4&&hasParenYear){
+    fb.className='fb-box show good';
+    fb.innerHTML='🏆 완벽해요! 혼자서 APA 형식을 완성했어요! 대단해요!';
+    markTask(8,'finalapa');
+  } else {
+    let missing=[];
+    if(!v.includes('대한고혈압학회')) missing.push('작성자');
+    if(!hasParenYear) missing.push('연도를 소괄호 안에: (2022)');
+    if(!v.includes('고혈압 예방')) missing.push('글 제목');
+    if(!v.includes('koreanhypertension')&&!v.includes('http')) missing.push('URL');
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 확인해볼 항목: <strong>'+missing.join(', ')+'</strong><br><small>형식: 대한고혈압학회. (2022). 고혈압 예방과 관리. 대한고혈압학회 공식 홈페이지. https://www.koreanhypertension.org</small>';
+  }
+}
+
+/* ══ 마무리 ══ */
+function checkFinal(){
+  const v=document.getElementById('final-reflection').value.trim();
+  if(v.length>=15) markTask(8,'final');
+}
+function saveFinal(){
+  checkFinal();
+  const v=document.getElementById('final-reflection').value.trim();
+  if(v.length>=15){
+    document.getElementById('final-done').style.display='block';
+    completeChapter(8);
+  } else {
+    showToast('💭 조금 더 자세히 써봐요!');
+  }
+}
+</script>
+</body>
+</html>
+
+
+
+							<script>
+                            	
+/* ══ 전역 변수 ══ */
+var _student={cls:'',num:'',name:''};
+var _startTime=null;
+var _quizScore='미완료';
+var _apaStatus='미완료';
+var _summaryStatus='미완료';
+var selfChecks={};  // 짝 피드백 → 자기 점검으로 변경
+
+/* ══ 로그인 ══ */
+function doLogin(){
+  var cls=document.getElementById('inp-class').value.trim();
+  var num=document.getElementById('inp-num').value.trim();
+  var name=document.getElementById('inp-name').value.trim();
+  var err=document.getElementById('loginErr');
+  if(!cls||!num||!name){
+    err.style.display='block';
+    if(!cls) document.getElementById('inp-class').classList.add('err');
+    if(!num) document.getElementById('inp-num').classList.add('err');
+    if(!name) document.getElementById('inp-name').classList.add('err');
+    return;
+  }
+  err.style.display='none';
+  _student={cls,num,name};
+  _startTime=new Date();
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  var badge=document.getElementById('studentBadge');
+  badge.textContent='👤 '+cls+'반 '+num+'번 '+name;
+  badge.style.display='inline-block';
+  document.getElementById('res-name').textContent=name;
+  document.getElementById('res-class').textContent=cls+'반 '+num+'번';
+  initQuiz7();
+}
+
+function _calcTime(){
+  if(!_startTime) return '-';
+  var diff=Math.floor((new Date()-_startTime)/1000);
+  return Math.floor(diff/60)+'분 '+(diff%60)+'초';
+}
+
+function submitResult(){
+  var sum1=document.getElementById('sum1-q1').value.trim().slice(0,80);
+  var apa1=document.getElementById('apa1-preview').textContent.slice(0,150);
+  var sum2=document.getElementById('sum2-q1').value.trim().slice(0,80);
+  var apa2=document.getElementById('apa2-preview').textContent.slice(0,150);
+  var reflection=document.getElementById('final-reflection').value.trim().slice(0,150);
+  var selfNote=(document.getElementById('self-revise-text')?document.getElementById('self-revise-text').value.trim().slice(0,100):'');
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='⏳ 제출 중...';
+  var FORM_URL='https://docs.google.com/forms/u/0/d/e/1FAIpQLScvH5vdxkXyuc6GUx6JjIwsxMZqVbPzi43Y3KzLhveHJXR-ww/formResponse';
+  var ENTRIES={
+    cls:'entry.592236459', num:'entry.582881831', name:'entry.146385857',
+    apa:'entry.1069538737', sum:'entry.1952263604', score:'entry.2115279314',
+    sum1:'entry.1810657031', apa1:'entry.259067305',
+    sum2:'entry.145485050', apa2:'entry.250189280',
+    reflection:'entry.1077100298', time:'entry.1181241034'
+  };
+  var body=
+    encodeURIComponent(ENTRIES.cls)+'='+encodeURIComponent(_student.cls)+'&'+
+    encodeURIComponent(ENTRIES.num)+'='+encodeURIComponent(_student.num)+'&'+
+    encodeURIComponent(ENTRIES.name)+'='+encodeURIComponent(_student.name)+'&'+
+    encodeURIComponent(ENTRIES.apa)+'='+encodeURIComponent(_apaStatus)+'&'+
+    encodeURIComponent(ENTRIES.sum)+'='+encodeURIComponent(_summaryStatus)+'&'+
+    encodeURIComponent(ENTRIES.score)+'='+encodeURIComponent(_quizScore)+'&'+
+    encodeURIComponent(ENTRIES.sum1)+'='+encodeURIComponent(sum1)+'&'+
+    encodeURIComponent(ENTRIES.apa1)+'='+encodeURIComponent(apa1)+'&'+
+    encodeURIComponent(ENTRIES.sum2)+'='+encodeURIComponent(sum2)+'&'+
+    encodeURIComponent(ENTRIES.apa2)+'='+encodeURIComponent(apa2)+'&'+
+    encodeURIComponent(ENTRIES.reflection)+'='+encodeURIComponent(reflection)+'&'+
+    encodeURIComponent(ENTRIES.time)+'='+encodeURIComponent(_calcTime());
+  fetch(FORM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body})
+    .then(()=>_showSubmitDone()).catch(()=>_showSubmitDone());
+}
+function _showSubmitDone(){
+  document.getElementById('submitBtn').style.display='none';
+  document.getElementById('submitDone').style.display='block';
+}
+
+/* ══ 챕터 관리 ══ */
+const TOTAL=9;
+let unlockedUpTo=0, currentChapter=0, nextAfterCongrats=1;
+const CHAPTER_TASKS={
+  0:['think'],
+  1:['practice','checklist'],
+  2:['read1'],
+  3:['summary','apa'],
+  4:['read2'],
+  5:['summary','apa'],
+  6:['self','revise'],   // ← 변경: peer,revise → self,revise
+  7:['quiz'],
+  8:['finalapa','final']
+};
+const completedTasks={};
+for(let i=0;i<TOTAL;i++) completedTasks[i]=new Set();
+
+function markTask(chIdx,key){
+  completedTasks[chIdx].add(key);
+  const el=document.getElementById('task-'+chIdx+'-'+key);
+  if(el) el.classList.add('done');
+  checkAllTasks(chIdx);
+}
+function checkAllTasks(idx){
+  const req=CHAPTER_TASKS[idx]; if(!req) return;
+  const allDone=req.every(t=>completedTasks[idx].has(t));
+  const btn=document.getElementById('complete-btn-'+idx);
+  if(btn) btn.classList.toggle('btn-locked',!allDone);
+}
+function tryComplete(idx){
+  const req=CHAPTER_TASKS[idx];
+  const allDone=req?req.every(t=>completedTasks[idx].has(t)):true;
+  if(!allDone){showToast('🔒 아직 완료하지 않은 항목이 있어요!'); return;}
+  completeChapter(idx);
+}
+function completeChapter(idx){
+  if(idx>=unlockedUpTo){unlockedUpTo=idx+1; unlockBtn(idx+1);}
+  nextAfterCongrats=idx+1;
+  if(idx+1<TOTAL) showCongrats(idx);
+  else showFinalCongrats();
+  updateProg();
+}
+function goChapter(idx){
+  if(idx>unlockedUpTo){showToast('🔒 이전 챕터를 먼저 완료해주세요!'); return;}
+  currentChapter=idx;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ch-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+idx).classList.add('active');
+  document.getElementById('ch-btn-'+idx).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateProg();
+  // 챕터 6 진입 시 내가 쓴 내용 자동 로드
+  if(idx===6) loadSelfReview();
+  if(idx===7) initQuiz7();
+}
+function unlockBtn(idx){
+  if(idx>=TOTAL) return;
+  const btn=document.getElementById('ch-btn-'+idx); if(!btn) return;
+  btn.classList.remove('locked');
+  btn.textContent=btn.textContent.replace('🔒 ','');
+}
+const cMsgs=[
+  ['✍️','시작 완료!','APA 형식을 배워봐요 📌'],
+  ['📌','APA 배우기 완료!','원문 ①을 읽어봐요 📖'],
+  ['📖','원문 ① 읽기 완료!','이제 내 말로 요약해봐요 ✍️'],
+  ['✍️','요약 ① 완료!','원문 ②를 읽어봐요 📖'],
+  ['📖','원문 ② 읽기 완료!','이제 내 말로 요약해봐요 ✍️'],
+  ['✍️','요약 ② 완료!','스스로 점검해봐요 🔎'],
+  ['🔎','스스로 점검 완료!','확인 문제에 도전해봐요 ✏️'],
+  ['✏️','확인 문제 완료!','마무리해봐요 🎯'],
+];
+function showCongrats(idx){
+  const m=cMsgs[idx]||['🎉','완료!','수고했어요!'];
+  document.getElementById('congratsEmoji').textContent=m[0];
+  document.getElementById('congratsTitle').textContent=m[1];
+  document.getElementById('congratsMsg').textContent=m[2];
+  document.getElementById('congratsOverlay').classList.add('show');
+}
+function showFinalCongrats(){
+  document.getElementById('congratsEmoji').textContent='🏆';
+  document.getElementById('congratsTitle').textContent='2단계 완료!';
+  document.getElementById('congratsMsg').textContent='APA & 요약하기 마스터! ✍️✨ 제출 버튼을 눌러주세요!';
+  document.getElementById('congratsOverlay').classList.add('show');
+}
+function closeCongratsAndNext(){
+  document.getElementById('congratsOverlay').classList.remove('show');
+  if(nextAfterCongrats<TOTAL) goChapter(nextAfterCongrats);
+}
+function updateProg(){
+  const pct=Math.round((unlockedUpTo/TOTAL)*100);
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+}
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('lockToast');
+  t.textContent=msg; t.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function toggleEl(id){
+  const e=document.getElementById(id);
+  e.style.display=e.style.display==='none'?'block':'none';
+}
+
+/* ══ 읽기 체크 ══ */
+function toggleCheck(el, id){
+  const span=document.getElementById(id);
+  if(span.textContent==='☐'){ span.textContent='✅'; el.style.color='#059669'; }
+  else { span.textContent='☐'; el.style.color=''; }
+}
+
+/* ══ APA 연습 ══ */
+function checkApaPracticeBtn(){
+  const v=document.getElementById('apa-practice-input').value.trim();
+  const fb=document.getElementById('apa-practice-fb');
+  const required=['서울대학교병원','2023','비만이란','snuh'];
+  const found=required.filter(r=>v.includes(r));
+  if(found.length===4){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 완벽해요! APA 형식을 잘 이해했어요!<br><small>작성자, 연도, 제목, URL이 모두 포함됐어요 ✅</small>';
+    markTask(1,'practice');
+    _apaStatus='연습 완료';
+    document.getElementById('res-apa').textContent=_apaStatus;
+  } else if(found.length>=2){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 빠진 항목: '+required.filter(r=>!v.includes(r)).join(', ')+'<br><small>APA 형식: 작성자. (연도). 제목. 사이트. URL</small>';
+  } else {
+    fb.className='fb-box show bad';
+    fb.innerHTML='❌ APA 형식을 다시 확인해봐요!<br><small>형식: 서울대학교병원. (2023). 비만이란?. 서울대병원 건강정보. https://www.snuh.org/...</small>';
+  }
+}
+function showApaAnswer(){
+  const fb=document.getElementById('apa-practice-fb');
+  fb.className='fb-box show info';
+  fb.innerHTML='💡 <strong>정답 예시:</strong><br><code style="font-family:Courier New;font-size:.88em;color:#1d4ed8;">서울대학교병원. (2023). 비만이란?. 서울대학교병원 건강정보. https://www.snuh.org/...</code><br><br>내 답과 비교해봐요! 형식이 맞으면 ✅ 버튼을 눌러도 돼요.';
+  markTask(1,'practice');
+}
+
+/* ══ APA 미리보기 ══ */
+function _buildApaText(author,year,title,site,url){
+  let a=author||'작성자';
+  let y=year?'('+year+')':'(연도)';
+  let t=title||'글 제목';
+  let s=site||'사이트 이름';
+  let u=url||'URL';
+  return a+'. '+y+'. '+t+'. '+s+'. '+u;
+}
+function updateApaPreview1(){
+  const a=document.getElementById('apa1-author').value.trim();
+  const y=document.getElementById('apa1-year').value.trim();
+  const t=document.getElementById('apa1-title').value.trim();
+  const s=document.getElementById('apa1-site').value.trim();
+  const u=document.getElementById('apa1-url').value.trim();
+  document.getElementById('apa1-preview').textContent=_buildApaText(a,y,t,s,u);
+}
+function updateApaPreview2(){
+  const a=document.getElementById('apa2-author').value.trim();
+  const y=document.getElementById('apa2-year').value.trim();
+  const t=document.getElementById('apa2-title').value.trim();
+  const s=document.getElementById('apa2-site').value.trim();
+  const u=document.getElementById('apa2-url').value.trim();
+  document.getElementById('apa2-preview').textContent=_buildApaText(a,y,t,s,u);
+}
+
+/* ══ APA 확인 ══ */
+function checkApa1(){
+  const a=document.getElementById('apa1-author').value.trim();
+  const y=document.getElementById('apa1-year').value.trim();
+  const t=document.getElementById('apa1-title').value.trim();
+  const s=document.getElementById('apa1-site').value.trim();
+  const u=document.getElementById('apa1-url').value.trim();
+  const fb=document.getElementById('apa1-fb');
+  let errors=[];
+  if(!a||!a.includes('질병관리청')) errors.push('작성자(질병관리청)');
+  if(y!=='2023') errors.push('연도(2023)');
+  if(!t.includes('당뇨')) errors.push('글 제목(당뇨병이란?)');
+  if(!s.includes('건강정보')&&!s.includes('포털')) errors.push('사이트 이름');
+  if(!u.includes('http')) errors.push('URL');
+  if(errors.length===0){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 완벽해요! APA 출처를 정확하게 작성했어요!';
+    markTask(3,'apa');
+    _apaStatus='①② 완료';
+    document.getElementById('res-apa').textContent=_apaStatus;
+  } else if(errors.length<=2){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 확인해볼 항목: <strong>'+errors.join(', ')+'</strong>';
+  } else {
+    fb.className='fb-box show bad';
+    fb.innerHTML='❌ 다음 항목을 다시 확인해봐요: <strong>'+errors.join(', ')+'</strong><br><small>형식: 질병관리청. (2023). 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr/...</small>';
+  }
+}
+function checkApa2(){
+  const a=document.getElementById('apa2-author').value.trim();
+  const y=document.getElementById('apa2-year').value.trim();
+  const t=document.getElementById('apa2-title').value.trim();
+  const s=document.getElementById('apa2-site').value.trim();
+  const u=document.getElementById('apa2-url').value.trim();
+  const fb=document.getElementById('apa2-fb');
+  let errors=[];
+  if(!a||a.length<3) errors.push('작성자(서울대학교병원 가정의학과)');
+  if(y!=='2023') errors.push('연도(2023)');
+  if(!t.includes('비만')) errors.push('글 제목(비만이란?)');
+  if(!s||s.length<3) errors.push('사이트 이름');
+  if(!u.includes('http')) errors.push('URL');
+  if(errors.length===0){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 완벽해요! 이번엔 힌트 없이 완성했어요! 🏆';
+    markTask(5,'apa');
+    _summaryStatus='①② 완료';
+    document.getElementById('res-summary').textContent=_summaryStatus;
+  } else if(errors.length<=2){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 확인해볼 항목: <strong>'+errors.join(', ')+'</strong>';
+  } else {
+    fb.className='fb-box show bad';
+    fb.innerHTML='❌ 다음 항목을 다시 확인해봐요: <strong>'+errors.join(', ')+'</strong>';
+  }
+}
+
+/* ══ 요약 확인 ══ */
+function checkSummary1(){}
+function checkSummary1Btn(){
+  const q1=document.getElementById('sum1-q1').value.trim();
+  const q2=document.getElementById('sum1-q2').value.trim();
+  const q3=document.getElementById('sum1-q3').value.trim();
+  const fb=document.getElementById('sum1-fb');
+  const originalPhrases=['인슐린의 분비 또는 기능에 문제가 생겨','혈액 속 포도당 농도가 높아지는','극심한 갈증, 잦은 소변, 체중 감소, 피로감'];
+  const isCopied=originalPhrases.some(p=>q1.includes(p)||q2.includes(p)||q3.includes(p));
+  if(isCopied){
+    fb.className='fb-box show bad';
+    fb.innerHTML='⚠️ 원문의 문장이 그대로 포함된 것 같아요!<br>원문을 덮고 기억나는 내용을 <strong>내 말로</strong> 다시 써봐요.<br><small>예) "당뇨병은 혈당이 정상보다 높아지는 병이에요." 처럼 쉬운 말로 바꿔보세요!</small>';
+    return;
+  }
+  const allFilled=q1.length>=10&&q2.length>=10&&q3.length>=10;
+  if(allFilled){
+    fb.className='fb-box show good';
+    fb.innerHTML='✅ 잘 썼어요! 이제 APA 출처를 작성해봐요 📌';
+    markTask(3,'summary');
+    document.getElementById('apa-section-1').style.display='block';
+    document.getElementById('apa-section-1').scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 각 질문에 조금 더 자세히 써봐요! (10글자 이상)';
+  }
+}
+function checkSummary2(){}
+function checkSummary2Btn(){
+  const q1=document.getElementById('sum2-q1').value.trim();
+  const q2=document.getElementById('sum2-q2').value.trim();
+  const q3=document.getElementById('sum2-q3').value.trim();
+  const fb=document.getElementById('sum2-fb');
+  const originalPhrases=['체내에 지방이 과도하게 축적된','체질량지수(BMI)가 25 이상','과식, 운동 부족, 유전적 요인, 스트레스, 수면 부족'];
+  const isCopied=originalPhrases.some(p=>q1.includes(p)||q2.includes(p)||q3.includes(p));
+  if(isCopied){
+    fb.className='fb-box show bad';
+    fb.innerHTML='⚠️ 원문 문장이 포함된 것 같아요! 내 말로 다시 써봐요 ✍️';
+    return;
+  }
+  const allFilled=q1.length>=10&&q2.length>=10&&q3.length>=10;
+  if(allFilled){
+    fb.className='fb-box show good';
+    fb.innerHTML='✅ 훌륭해요! 이제 APA 출처를 작성해봐요 📌';
+    markTask(5,'summary');
+    document.getElementById('apa-section-2').style.display='block';
+    document.getElementById('apa-section-2').scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 각 질문에 조금 더 자세히 써봐요!';
+  }
+}
+
+/* ══ 스스로 점검 (챕터 6) ══ */
+function loadSelfReview(){
+  // 요약 내용 불러오기
+  var s1=[
+    document.getElementById('sum1-q1').value.trim(),
+    document.getElementById('sum1-q2').value.trim(),
+    document.getElementById('sum1-q3').value.trim()
+  ].filter(Boolean).join('\n');
+  var s2=[
+    document.getElementById('sum2-q1').value.trim(),
+    document.getElementById('sum2-q2').value.trim(),
+    document.getElementById('sum2-q3').value.trim()
+  ].filter(Boolean).join('\n');
+  var d1=document.getElementById('review-sum1-display');
+  var d2=document.getElementById('review-sum2-display');
+  if(d1) d1.textContent=s1||'(아직 작성하지 않았어요)';
+  if(d2) d2.textContent=s2||'(아직 작성하지 않았어요)';
+  // APA 내용 불러오기
+  var a1=document.getElementById('apa1-preview');
+  var a2=document.getElementById('apa2-preview');
+  var ra1=document.getElementById('review-apa1-display');
+  var ra2=document.getElementById('review-apa2-display');
+  if(ra1&&a1) ra1.textContent=
+    (a1.textContent==='항목을 입력하면 여기에 APA 형식이 나타나요...')?'(아직 작성하지 않았어요)':a1.textContent;
+  if(ra2&&a2) ra2.textContent=
+    (a2.textContent==='항목을 입력하면 여기에 APA 형식이 나타나요...')?'(아직 작성하지 않았어요)':a2.textContent;
+}
+
+function setSelfCheck(num, isOk){
+  selfChecks[num]=isOk;
+  var item=document.getElementById('self-'+num);
+  item.className='self-check-item '+(isOk?'checked-ok':'checked-bad');
+  var btns=item.querySelectorAll('.self-btn');
+  btns[0].classList.toggle('selected',isOk);
+  btns[1].classList.toggle('selected',!isOk);
+}
+
+function completeSelfCheck(){
+  var checkedCount=Object.keys(selfChecks).length;
+  var fb=document.getElementById('self-check-fb');
+  if(checkedCount<8){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 8개 항목을 모두 체크해봐요! (현재 '+checkedCount+'/8)';
+    return;
+  }
+  var badItems=Object.entries(selfChecks).filter(function(e){return !e[1];}).map(function(e){return Number(e[0]);});
+  var badCount=badItems.length;
+  if(badCount===0){
+    fb.className='fb-box show good';
+    fb.innerHTML='🎉 모든 항목 ✅! 정말 잘 썼어요!<br>아래에서 어려웠던 점을 간단히 써봐요 😊';
+  } else {
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 '+badCount+'개 항목이 ❌예요.<br>아래에서 해당 부분을 수정해봐요! 수정하면 더 좋은 글이 돼요 ✍️';
+  }
+  // 수정 안내 메시지
+  var guides={
+    1:'🔄 요약에서 원문 문장을 찾아 내 말로 바꿔써봐요.',
+    2:'🔍 질병의 정의(원인)를 요약에 추가해봐요.',
+    3:'🩺 증상이나 특징을 요약에 추가해봐요.',
+    4:'💊 예방법이나 관리 방법을 요약에 추가해봐요.',
+    5:'👤 APA에 작성자 이름과 마침표(.)를 추가해봐요.',
+    6:'📅 연도를 소괄호 안에 써봐요: (2023).',
+    7:'📄 글 제목과 마침표(.)를 추가해봐요.',
+    8:'🔗 사이트 이름과 URL을 추가해봐요.'
+  };
+  var guideEl=document.getElementById('self-revise-guide');
+  if(guideEl){
+    if(badCount>0){
+      var guideHtml='<strong>📋 수정이 필요한 항목:</strong><br>';
+      badItems.forEach(function(n){ guideHtml+=guides[n]+'<br>'; });
+      guideEl.innerHTML=guideHtml;
+      guideEl.className='fb-box show warn';
+    } else {
+      guideEl.innerHTML='✅ 모든 항목이 완료됐어요! 아래에 어려웠던 점이나 느낀 점을 자유롭게 써봐요.';
+      guideEl.className='fb-box show good';
+    }
+  }
+  markTask(6,'self');
+  document.getElementById('self-revise-card').style.display='block';
+  document.getElementById('self-revise-card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function checkSelfRevise(){
+  var revise=document.getElementById('self-revise-text').value.trim();
+  var reflect=document.getElementById('self-reflection').value.trim();
+  if(revise.length>=5&&reflect.length>=5) markTask(6,'revise');
+}
+
+function completeSelfRevise(){
+  var revise=document.getElementById('self-revise-text').value.trim();
+  var reflect=document.getElementById('self-reflection').value.trim();
+  var fb=document.getElementById('self-revise-fb');
+  if(revise.length<5){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 수정 내용을 써봐요! 수정할 게 없으면 "수정 없음"이라고 써도 돼요.';
+    return;
+  }
+  if(reflect.length<5){
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 어려웠던 점도 짧게 써봐요!';
+    return;
+  }
+  fb.className='fb-box show good';
+  fb.innerHTML='🎉 스스로 점검 완료! 자기 확인 능력이 늘었어요 🌟';
+  markTask(6,'revise');
+}
+
+/* ══ 확인 문제 ══ */
+const QUESTIONS7=[
+  {q:'다음 중 APA 형식이 올바른 것은?',
+   opts:['① 질병관리청 2023 당뇨병이란? 국가건강정보포털 https://health.kdca.go.kr',
+         '② 질병관리청. (2023). 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr',
+         '③ (2023) 질병관리청. 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr',
+         '④ 질병관리청. 2023. 당뇨병이란?. 국가건강정보포털. https://health.kdca.go.kr'],
+   ans:1,exp:'APA 형식: <strong>작성자. (연도). 제목. 사이트. URL</strong><br>연도는 반드시 소괄호 ( ) 안에 쓰고, 각 항목 뒤에 마침표(.)를 붙여요!'},
+  {q:'원문을 읽고 요약할 때 올바른 방법은?',
+   opts:['① 원문을 보면서 중요한 문장을 그대로 복사한다',
+         '② 원문을 덮고 기억나는 내용을 내 말로 쓴다',
+         '③ 원문에서 핵심 단어만 골라 나열한다',
+         '④ 원문 전체를 큰따옴표로 묶어 인용한다'],
+   ans:1,exp:'원문을 덮고 기억나는 내용을 <strong>내 말로</strong> 쓰는 것이 올바른 요약이에요!<br>원문 문장을 그대로 쓰면 표절이 될 수 있어요.'},
+  {q:'APA 출처에서 작성자를 찾을 수 없을 때 어떻게 해야 하나요?',
+   opts:['① 작성자 항목을 비워둔다',
+         '② "작성자 없음"이라고 쓴다',
+         '③ 사이트 이름을 작성자 자리에 쓴다',
+         '④ 출처를 쓰지 않아도 된다'],
+   ans:2,exp:'작성자를 찾을 수 없을 때는 <strong>사이트 이름</strong>을 작성자 자리에 써요!<br>날짜를 찾을 수 없을 때는 (n.d.) 라고 써요.'},
+  {q:'다음 중 APA 출처에 반드시 포함되어야 하는 항목이 아닌 것은?',
+   opts:['① 작성자','② URL(웹 주소)','③ 조회수','④ 연도'],
+   ans:2,exp:'APA 출처에 필요한 것은 <strong>작성자, 연도, 제목, 사이트명, URL</strong>이에요!<br>조회수는 APA 형식에 포함되지 않아요 🔍'},
+  {q:'출처를 표기하지 않고 다른 사람의 글을 그대로 사용하는 것을 무엇이라고 하나요?',
+   opts:['① 인용','② 표절','③ 요약','④ 참고'],
+   ans:1,exp:'<strong>표절(剽竊)</strong>은 다른 사람의 글, 아이디어를 출처 없이 자신의 것처럼 사용하는 것이에요!<br>항상 출처를 밝혀야 해요 📌'},
+];
+let curQ7=0,results7=[],answered7=false,inited7=false;
+function initQuiz7(){if(inited7)return;inited7=true;renderQuiz7();}
+function renderQuiz7(){
+  if(curQ7>=QUESTIONS7.length){showResult7();return;}
+  const q=QUESTIONS7[curQ7]; answered7=false;
+  document.getElementById('quizArea7').innerHTML=`
+    <div style="background:var(--teal-light);border-radius:16px;padding:20px;border:1.5px solid #99f6e4;margin-bottom:14px;">
+      <div style="font-size:.82em;color:var(--teal);margin-bottom:8px;">문제 ${curQ7+1} / ${QUESTIONS7.length} ✍️</div>
+      <div style="font-size:1em;line-height:1.7;margin-bottom:14px;">${q.q}</div>
+      <div id="opts7">${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerQ7(${i})">${o}</button>`).join('')}</div>
+    </div>
+    <div class="exp-box" id="exp7"><div id="exp7t" style="margin-bottom:6px;"></div><div id="exp7b" style="line-height:1.85;font-size:.93em;"></div></div>
+    <div id="next7" style="text-align:center;margin-top:12px;display:none;">
+      <button class="btn btn-teal" onclick="nextQ7()">${curQ7+1<QUESTIONS7.length?'다음 문제 →':'결과 보기 🎉'}</button>
+    </div>`;
+}
+function answerQ7(idx){
+  if(answered7)return; answered7=true;
+  const q=QUESTIONS7[curQ7],ok=idx===q.ans;
+  results7.push(ok);
+  document.querySelectorAll('#opts7 .quiz-opt').forEach((o,i)=>{
+    o.disabled=true; o.style.cursor='default';
+    if(i===q.ans) o.classList.add('right');
+    else if(i===idx&&!ok) o.classList.add('wrong');
+  });
+  const box=document.getElementById('exp7');
+  box.className='exp-box show '+(ok?'ok':'ng');
+  document.getElementById('exp7t').textContent=ok?'✅ 정답이에요! 🎉':'❌ 아쉬워요!';
+  document.getElementById('exp7b').innerHTML=q.exp;
+  document.getElementById('next7').style.display='block';
+}
+function nextQ7(){curQ7++;renderQuiz7();}
+function showResult7(){
+  const c=results7.filter(Boolean).length,t=QUESTIONS7.length;
+  const pct=Math.round(c/t*100);
+  _quizScore=c+'/'+t+' ('+pct+'%)';
+  document.getElementById('res-score').textContent=_quizScore;
+  document.getElementById('quizArea7').innerHTML=`
+    <div style="text-align:center;padding:24px 0;">
+      <div style="font-size:3em;margin-bottom:12px;">${pct===100?'🏆':pct>=80?'🌟':pct>=60?'😊':'💪'}</div>
+      <div style="font-size:1.8em;color:var(--teal-dark);margin-bottom:8px;">${c} / ${t} 정답!</div>
+      <div style="color:var(--muted);margin-bottom:18px;">${pct>=80?'APA & 요약 마스터! ✍️':'조금 더 복습해봐요! 💪'}</div>
+      <button class="btn btn-ghost" onclick="restartQ7()">🔄 다시 풀기</button>
+    </div>`;
+  markTask(7,'quiz');
+}
+function restartQ7(){curQ7=0;results7=[];answered7=false;inited7=false;initQuiz7();}
+
+/* ══ 최종 APA 도전 ══ */
+function checkFinalApa(){}
+function checkFinalApaBtn(){
+  const v=document.getElementById('final-apa').value.trim();
+  const fb=document.getElementById('final-apa-fb');
+  const required=['대한고혈압학회','2022','고혈압 예방','koreanhypertension'];
+  const found=required.filter(r=>v.includes(r));
+  const hasParenYear=/\(2022\)/.test(v);
+  if(found.length===4&&hasParenYear){
+    fb.className='fb-box show good';
+    fb.innerHTML='🏆 완벽해요! 혼자서 APA 형식을 완성했어요! 대단해요!';
+    markTask(8,'finalapa');
+  } else {
+    let missing=[];
+    if(!v.includes('대한고혈압학회')) missing.push('작성자');
+    if(!hasParenYear) missing.push('연도를 소괄호 안에: (2022)');
+    if(!v.includes('고혈압 예방')) missing.push('글 제목');
+    if(!v.includes('koreanhypertension')&&!v.includes('http')) missing.push('URL');
+    fb.className='fb-box show warn';
+    fb.innerHTML='💛 거의 다 됐어요! 확인해볼 항목: <strong>'+missing.join(', ')+'</strong><br><small>형식: 대한고혈압학회. (2022). 고혈압 예방과 관리. 대한고혈압학회 공식 홈페이지. https://www.koreanhypertension.org</small>';
+  }
+}
+
+/* ══ 마무리 ══ */
+function checkFinal(){
+  const v=document.getElementById('final-reflection').value.trim();
+  if(v.length>=15) markTask(8,'final');
+}
+function saveFinal(){
+  checkFinal();
+  const v=document.getElementById('final-reflection').value.trim();
+  if(v.length>=15){
+    document.getElementById('final-done').style.display='block';
+    completeChapter(8);
+  } else {
+    showToast('💭 조금 더 자세히 써봐요!');
+  }
+}
+
+
+							</script>
+                        </body>
+                        </html>
+                    
